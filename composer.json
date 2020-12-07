@@ -1,0 +1,39 @@
+{
+    "name": "javaabu/efaas-socialite",
+    "description": "eFaas Provider for Laravel Socialite",
+    "homepage": "https://github.com/Javaabu/EFaas-Socialite",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Arushad Ahmed",
+            "email": "arushad@javaabu.com"
+        }
+    ],
+    "require": {
+        "php": "^7.2 || ^8.0",
+        "laravel/socialite": "~3.3|~4.0|~5.0",
+        "illuminate/support": "^5.6|^6.0|^7.0|^8.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^4.0",
+        "phpunit/phpunit": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Javaabu\\EfaasSocialite\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Javaabu\\EfaasSocialite\\Test\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Javaabu\\EfaasSocialite\\EfaasSocialiteServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable"
+}
