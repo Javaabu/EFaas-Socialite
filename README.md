@@ -37,6 +37,8 @@ Javaabu\EfaasSocialite\Providers\EfaasSocialiteServiceProvider::class;
 
 ### Usage
 
+**Note:** A demo implementation of this package is available [here](https://github.com/ncit-devs/Efaas-Implementation-Javaabu).
+
 You should now be able to use the provider like you would regularly use Socialite (assuming you have the facade installed):
 Refer to the [Official Social Docs](https://laravel.com/docs/8.x/socialite#routing) for more info.
 
