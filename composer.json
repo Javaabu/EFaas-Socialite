@@ -31,7 +31,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Javaabu\\EfaasSocialite\\EfaasSocialiteServiceProvider"
+                "Javaabu\\EfaasSocialite\\Providers\\EfaasSocialiteServiceProvider"
             ]
         }
     },
