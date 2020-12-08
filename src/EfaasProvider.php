@@ -4,6 +4,7 @@ namespace Javaabu\EfaasSocialite;
 
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Javaabu\EfaasSocialite\Enums\UserStates;
 use Javaabu\EfaasSocialite\Enums\UserTypes;
 use Javaabu\EfaasSocialite\Enums\VerificationLevels;
 use Laravel\Socialite\Two\AbstractProvider;
@@ -135,6 +136,7 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
     {
         $address = json_decode(Arr::get($user, 'address'), true);
         $user_type = Arr::get($user, 'user_type');
+        $user_state = Arr::get($user, 'user_state');
         $verification_level = Arr::get($user, 'verification_level');
         $dob = Arr::get($user, 'birthdate');
         $updated_at = Arr::get($user, 'updated_at');
@@ -157,6 +159,8 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
             'user_type_desc' => UserTypes::getDescription($user_type),
             'verification_level' => $verification_level,
             'verification_level_desc' => VerificationLevels::getDescription($verification_level),
+            'user_state' => $user_state,
+            'user_state_desc' => UserStates::getDescription($user_state),
             'birthdate' => $dob ? Carbon::parse($dob) : null,
             'is_workpermit_active' => Arr::get($user, 'is_workpermit_active') == 'True',
             'updated_at' =>  $updated_at ? Carbon::parse($updated_at) : null,
@@ -221,7 +225,7 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function signOut($access_token, $redirect) {
+    public function logOut($access_token, $redirect) {
         $signout_endpoint = $this->getApiUrl('endsession');
 
         $signout_params = [

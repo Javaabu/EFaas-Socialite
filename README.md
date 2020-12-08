@@ -38,16 +38,64 @@ Javaabu\EfaasSocialite\Providers\EfaasSocialiteServiceProvider::class;
 ### Usage
 
 You should now be able to use the provider like you would regularly use Socialite (assuming you have the facade installed):
+Refer to the [Official Social Docs](https://laravel.com/docs/8.x/socialite#routing) for more info.
 
 ```php
 return Socialite::driver('efaas')->redirect();
 ```
 
-### Available Methods
+and in your callback handler, you can access the user data like so.
+
+```
+$efaas_user = Socialite::driver('efaas')->user();
+$access_token = $efaas_user->token;
+```
+
+#### Logging out the eFaas User
+
+In your Laravel logout redirect, redirect with the provider `logOut()` method using the access token saved during login
 
 ``` php
-//TODO
+return Socialite::driver('efaas')->logOut($access_token, $post_logout_redirect_url);
 ```
+
+#### Available Methods for eFaas User
+
+``` php
+$efaas_user->isMaldivian();
+```
+
+#### Getting eFaas data from eFaas User object
+
+``` php
+$id_number = $oauth_user->idnumber;
+```
+
+#### Available eFaas data fields
+ Field                   | Description                                    | Example
+------------------------ |----------------------------------------------- | ---------------------------------------
+**`name`**               | Full Name                                      | `Ahmed Mohamed`
+**`given_name`**         | First Name                                     | `Ahmed`
+**`middle_name`**        | Middle Name                                    | 
+**`family_name`**        | Last Name                                      | `Mohamed`
+**`idnumber`**           | ID number in case of maldivian and workpermit number in case of expatriates | `A037420`                                     | `Ahmed`
+**`gender`**             | Gender                                         | `M` or `F`
+**`address`**            | Permananet Address. Country will contain an ISO 3 Digit country code. | ```["AddressLine1" => "Light Garden", "AddressLine2" => "", "Road" => "", "AtollAbbreviation" => "K", "IslandName" => "Male", "HomeNameDhivehi" => "ލައިޓްގާރޑްން", "Ward" => "Maafannu", "country" => "462"]```                                     | `Ahmed`
+**`phone_number`**       | Registered phone number                        | `9939900`
+**`email`**              | Email address                                  | `ahmed@example.com`
+**`fname_dhivehi`**      | First name in Dhivehi                          | `އަހުމަދު`
+**`mname_dhivehi`**      | Middle name in Dhivehi                         |
+**`lname_dhivehi`**      | Last name in Dhivehi                           | `މުހައްމަދު`
+**`user_type`**          | User type<br>1- Maldivian<br>2- Work Permit Holder<br>3- Foreigners | 1
+**`user_type_desc`**     | Description of the user type                   | `Maldivian`
+**`verification_level`** | Verification level of the user in efaas<br>100: Not Verified<br>150: Verified by calling<br>200: Mobile Phone registered in the name of User<br>250: Verified in person (Limited)<br>300: Verified in person | `300`
+**`verification_level_desc`**     | Description of the verification level | `Verified in person`
+**`user_state`**          | User's state<br>2- Pending Verification<br>3- Active | `3`
+**`user_state_desc`**     | Description of user's state                   | `Active`
+**`birthdate`**           | Date of birth. (Carbon instance)              | `10/28/1987`
+**`is_workpermit_active`** | Is the work permit active                    | `false`
+**`passport_number`**     | Passport number of the individual (expat and foreigners only) | 
+**`updated_at`**          | Information Last Updated date. (Carbon instance) | `10/28/2017`  
 
 ### Testing
 
