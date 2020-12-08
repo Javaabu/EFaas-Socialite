@@ -20,7 +20,7 @@ composer require javaabu/efaas-socialite
 After updating composer, add the ServiceProvider to the providers array in config/app.php
 
 ``` bash
-Javaabu\EfaasSocialite\Providers\EfaasSocialiteServiceProvider::class;
+Javaabu\EfaasSocialite\Providers\EfaasSocialiteServiceProvider::class,
 ```
 
 
