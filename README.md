@@ -1,4 +1,4 @@
-# BML Connect Laravel
+# eFaas Laravel Socialite
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/javaabu/efaas-socialite.svg?style=flat-square)](https://packagist.org/packages/javaabu/efaas-socialite)
 [![Build Status](https://img.shields.io/travis/javaabu/efaas-socialite/master.svg?style=flat-square)](https://travis-ci.org/javaabu/efaas-socialite)
@@ -15,7 +15,7 @@ You can install the package via composer:
 composer require javaabu/efaas-socialite
 ```
 
-**Laravel 5.5** uses Package Auto-Discovery, so doesn't require you to manually add the ServiceProvider.
+**Laravel 5.5** and above uses Package Auto-Discovery, so doesn't require you to manually add the ServiceProvider.
 
 After updating composer, add the ServiceProvider to the providers array in config/app.php
 
@@ -28,9 +28,10 @@ Javaabu\EfaasSocialite\Providers\EfaasSocialiteServiceProvider::class;
 
 ```php
 'efaas' => [    
-  'client_id' => env('EFAAS_CLIENT_ID'),  
-  'client_secret' => env('EFAAS_CLIENT_SECRET'),  
-  'redirect' => env('EFAAS_REDIRECT_URI') 
+    'client_id' => env('EFAAS_CLIENT_ID'),  
+    'client_secret' => env('EFAAS_CLIENT_SECRET'),  
+    'redirect' => env('EFAAS_REDIRECT_URI'),
+    'mode' => env('EFAAS_MODE', 'development'), // supports production, development            
 ],
 ```
 
@@ -69,6 +70,8 @@ If you discover any security related issues, please email info@javaabu.com inste
 ## Credits
 
 - [Javaabu Pvt. Ltd.](https://github.com/javaabu)
+- [Arushad Ahmed (@dash8x)](http://arushad.org)
+- [Mohamed Jailam](http://github.com/muhammedjailam)
 - [All Contributors](../../contributors)
 
 ## License

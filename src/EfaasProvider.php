@@ -2,7 +2,10 @@
 
 namespace Javaabu\EfaasSocialite;
 
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Javaabu\EfaasSocialite\Enums\UserTypes;
+use Javaabu\EfaasSocialite\Enums\VerificationLevels;
 use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\ProviderInterface;
 use Javaabu\EfaasSocialite\EfaasUser as User;
@@ -10,9 +13,34 @@ use Javaabu\EfaasSocialite\EfaasUser as User;
 class EfaasProvider extends AbstractProvider implements ProviderInterface
 {
 
-    const DEFAULT_EFAAS_URL = 'https://developer.egov.mv/efaas/connect';
+    const DEVELOPMENT_EFAAS_URL = 'https://developer.egov.mv/efaas/connect';
+    const PRODUCTION_EFAAS_URL = 'https://efaas.egov.mv/connect';
 
     protected $stateless = true;
+
+    protected $enc_type = PHP_QUERY_RFC1738;
+
+    /**
+     * Get correct endpoint for API
+     *
+     * @param $key
+     * @param null $default
+     * @return string
+     */
+    protected function config($key, $default = null)
+    {
+        return config("services.efaas.$key", $default);
+    }
+
+    /**
+     * Check if is in production
+     *
+     * @return boolean
+     */
+    protected function isProduction()
+    {
+        return $this->config('mode') == 'production';
+    }
 
     /**
      * Get correct endpoint for API
@@ -21,7 +49,13 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getEfaasUrl()
     {
-        return rtrim(config('services.efaas.api_url') ?: self::DEFAULT_EFAAS_URL, '/');
+        $url = $this->config('api_url');
+
+        if (! $url) {
+            $url = $this->isProduction() ? self::PRODUCTION_EFAAS_URL : self::DEVELOPMENT_EFAAS_URL;
+        }
+
+        return rtrim($url, '/');
     }
 
     /**
@@ -100,31 +134,35 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         $address = json_decode(Arr::get($user, 'address'), true);
+        $user_type = Arr::get($user, 'user_type');
+        $verification_level = Arr::get($user, 'verification_level');
+        $dob = Arr::get($user, 'birthdate');
+        $updated_at = Arr::get($user, 'updated_at');
+        $given_name = Arr::get($user, 'given_name');
 
         return (new User)->setRaw($user)->map([
-            'user_type' => $user['user_type'] ?? 1,
-            'nickname' => Arr::get($user, 'nickname') ?: null,
             'name' => Arr::get($user, 'name'),
-            'email' => Arr::get($user, 'email'),
-            'avatar' => Arr::get($user, 'picture') ?: null,
+            'given_name' => $given_name,
+            'middle_name' => Arr::get($user, 'middle_name'),
+            'family_name' => Arr::get($user, 'family_name'),
+            'idnumber' => Arr::get($user, 'idnumber'),
+            'gender' => Arr::get($user, 'gender'),
             'address' => $address ?: null,
-            'phone' => Arr::get($user, 'phone_number') ?: null,
-            'dob'   => Arr::get($user, 'birthdate') ?: null,
-            'gender'   => Arr::get($user, 'gender') ?: null,
-            'id_no' => Arr::get($user, 'idnumber') ?: null,
-            'verification_level' => Arr::get($user, 'verification_level') ?: null,
-            'address_string' => $address ? $this->parseAddress($address) : null,
+            'phone_number' => Arr::get($user, 'phone_number') ?: null,
+            'email' => Arr::get($user, 'email'),
+            'fname_dhivehi' => Arr::get($user, 'fname_dhivehi'),
+            'mname_dhivehi' => Arr::get($user, 'mname_dhivehi'),
+            'lname_dhivehi' => Arr::get($user, 'lname_dhivehi'),
+            'user_type' => Arr::get($user, 'user_type'),
+            'user_type_desc' => UserTypes::getDescription($user_type),
+            'verification_level' => $verification_level,
+            'verification_level_desc' => VerificationLevels::getDescription($verification_level),
+            'birthdate' => $dob ? Carbon::parse($dob) : null,
+            'is_workpermit_active' => Arr::get($user, 'is_workpermit_active') == 'True',
+            'updated_at' =>  $updated_at ? Carbon::parse($updated_at) : null,
+            'avatar' => Arr::get($user, 'picture') ?: null,
+            'nickname' => $given_name ?: null,
         ]);
-    }
-
-    /**
-     * Parse address to string
-     */
-    protected function parseAddress($address)
-    {
-        $address = array_values(Arr::only($address, ['AddressLine1', 'AddressLine2', 'Ward', 'AtollAbbreviation', 'IslandName']));
-
-        return implode("\n", $address);
     }
 
     /**
@@ -153,8 +191,10 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
     /**
      * Get the raw user for the given access token.
      *
-     * @param  string $token
+     * @param string $token
      * @return array
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     protected function getUserByToken($token)
     {
@@ -166,5 +206,34 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
         ]);
 
         return  json_decode($response->getBody()->getContents(), true);
+    }
+
+    /**
+     * It calls the end-session endpoint of the OpenID Connect provider to notify the OpenID
+     * Connect provider that the end-user has logged out of the relying party site
+     * (the client application).
+     *
+     * @param string $access_token ID token (obtained at login)
+     * @param string|null $redirect URL to which the RP is requesting that the End-User's User Agent
+     * be redirected after a logout has been performed. The value MUST have been previously
+     * registered with the OP. Value can be null.
+     * https://github.com/jumbojett/OpenID-Connect-PHP/blob/master/src/OpenIDConnectClient.php
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function signOut($access_token, $redirect) {
+        $signout_endpoint = $this->getApiUrl('endsession');
+
+        $signout_params = [
+            'id_token_hint' => $access_token
+        ];
+
+        if (! $redirect) {
+            $signout_params['post_logout_redirect_uri'] = $redirect;
+        }
+
+        $signout_endpoint  .= (strpos($signout_endpoint, '?') === false ? '?' : '&') . http_build_query( $signout_params, null, '&', $this->enc_type);
+
+        return redirect()->to($signout_endpoint);
     }
 }
