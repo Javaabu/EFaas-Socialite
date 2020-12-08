@@ -2,11 +2,10 @@
 
 namespace Javaabu\EfaasSocialite\Providers;
 
-use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 use Javaabu\EfaasSocialite\EfaasProvider;
 
-class EfaasSocialiteServiceProvider extends ServiceProvider implements DeferrableProvider
+class EfaasSocialiteServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
