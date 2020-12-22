@@ -64,7 +64,8 @@ return Socialite::driver('efaas')->logOut($access_token, $post_logout_redirect_u
 #### Available Methods for eFaas User
 
 ``` php
-$efaas_user->isMaldivian();
+$efaas_user->isMaldivian(); // Check if is a Maldivian
+$efaas_user->getDhivehiName(); // Full name in Dhivehi
 ```
 
 #### Getting eFaas data from eFaas User object
