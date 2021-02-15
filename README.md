@@ -42,6 +42,8 @@ Javaabu\EfaasSocialite\Providers\EfaasSocialiteServiceProvider::class,
 You should now be able to use the provider like you would regularly use Socialite (assuming you have the facade installed):
 Refer to the [Official Social Docs](https://laravel.com/docs/8.x/socialite#routing) for more info.
 
+**Warning:** If you get `403 Forbidden` error when your Laravel app makes requests to the eFaas authorization endpoints, request NCIT to whitelist your server IP.
+
 ```php
 return Socialite::driver('efaas')->redirect();
 ```
