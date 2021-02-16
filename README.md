@@ -85,7 +85,7 @@ $id_number = $oauth_user->idnumber;
 **`family_name`**        | Last Name                                      | `Mohamed`
 **`idnumber`**           | ID number in case of maldivian and workpermit number in case of expatriates | `A037420`                                     | `Ahmed`
 **`gender`**             | Gender                                         | `M` or `F`
-**`address`**            | Permananet Address. Country will contain an ISO 3 Digit country code. | ```["AddressLine1" => "Light Garden", "AddressLine2" => "", "Road" => "", "AtollAbbreviation" => "K", "IslandName" => "Male", "HomeNameDhivehi" => "ލައިޓްގާރޑްން", "Ward" => "Maafannu", "country" => "462"]```                                     | `Ahmed`
+**`address`**            | Permananet Address. Country will contain an ISO 3 Digit country code. | ```["AddressLine1" => "Light Garden", "AddressLine2" => "", "Road" => "", "AtollAbbreviation" => "K", "IslandName" => "Male", "HomeNameDhivehi" => "ލައިޓްގާރޑްން", "Ward" => "Maafannu", "Country" => "462"]```                                     | `Ahmed`
 **`phone_number`**       | Registered phone number                        | `9939900`
 **`email`**              | Email address                                  | `ahmed@example.com`
 **`fname_dhivehi`**      | First name in Dhivehi                          | `އަހުމަދު`
