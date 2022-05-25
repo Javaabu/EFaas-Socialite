@@ -225,7 +225,8 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function logOut($access_token, $redirect) {
+    public function logOut($access_token, $redirect)
+    {
         $signout_endpoint = $this->getApiUrl('endsession');
 
         $signout_params = [
@@ -239,5 +240,20 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
         $signout_endpoint  .= (strpos($signout_endpoint, '?') === false ? '?' : '&') . http_build_query( $signout_params, null, '&', $this->enc_type);
 
         return redirect()->to($signout_endpoint);
+    }
+
+    /**
+     * Get a Social User instance from a known auth code.
+     *
+     * @param  string  $code
+     * @return \Laravel\Socialite\Two\User
+     */
+    public function userFromCode($code)
+    {
+        $response = $this->getAccessTokenResponse($code);
+
+        $token = Arr::get($response, 'access_token');
+
+        return $this->userFromToken($token);
     }
 }
