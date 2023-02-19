@@ -23,6 +23,20 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
     protected $enc_type = PHP_QUERY_RFC1738;
 
     /**
+     * The scopes being requested.
+     *
+     * @var array
+     */
+    protected $scopes = ['openid', 'profile'];
+
+    /**
+     * The separating character for the requested scopes.
+     *
+     * @var string
+     */
+    protected $scopeSeparator = ' ';
+
+    /**
      * Get correct endpoint for API
      *
      * @param $key
@@ -113,7 +127,7 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
             'response_type' => 'code id_token',
             'prompt' => 'select_account',
             'response_mode' => 'form_post',
-            'scope' => 'openid profile',
+            'scope' => $this->formatScopes($this->getScopes(), $this->scopeSeparator),
             'nonce' => $this->getState()
         ];
 
