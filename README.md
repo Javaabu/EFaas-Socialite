@@ -65,8 +65,29 @@ return Socialite::driver('efaas')->logOut($access_token, $post_logout_redirect_u
 
 #### Using eFaas One-tap Login
 
-This package supports eFaas one-tap login out of the box. 
-If the `efaas_login_code` parameter is present on the url for your eFaas redirect endpoint, then the login code will be automatically added to the eFaas redirect.
+To implement eFaas One Tap logins, create a middleware like so that will automatically redirect the login page to your eFaas redirect endpoint if a login code is present.
+Apply this middleware to your login page. Make sure this middleware is applied after any other middleware that is already applied to your login page.
+
+``` php
+<?php
+
+namespace App\Http\Middleware;
+
+use Javaabu\EfaasSocialite\Middleware\RedirectOneTapLogins as Middleware;
+
+class RedirectEfaasOneTapLogins extends Middleware
+{
+    /**
+     * Get the efaas login redirect url
+     */
+    protected function getRedirectUrl($request)
+    {
+        // put your efaas redirect url here
+        return route('efaas.redirect');
+    }
+}
+
+```
 
 #### Authenticating from mobile apps
 
