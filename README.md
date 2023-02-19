@@ -63,6 +63,11 @@ In your Laravel logout redirect, redirect with the provider `logOut()` method us
 return Socialite::driver('efaas')->logOut($access_token, $post_logout_redirect_url);
 ```
 
+#### Using eFaas One-tap Login
+
+This package supports eFaas one-tap login out of the box. 
+If the `efaas_login_code` parameter is present on the url for your eFaas redirect endpoint, then the login code will be automatically added to the eFaas redirect.
+
 #### Authenticating from mobile apps
 
 To authenticate users from mobile apps, redirect to the eFaas login screen through a Web View on the mobile app.

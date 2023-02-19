@@ -16,6 +16,7 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
 
     const DEVELOPMENT_EFAAS_URL = 'https://developer.egov.mv/efaas/connect';
     const PRODUCTION_EFAAS_URL = 'https://efaas.egov.mv/connect';
+    const ONE_TAP_LOGIN_KEY = 'efaas_login_code';
 
     protected $stateless = true;
 
@@ -88,6 +89,15 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
         return $this->buildAuthUrlFromBase($this->getApiUrl('authorize'), $state);
     }
 
+    /**
+     * Get the login code from the request.
+     *
+     * @return string
+     */
+    protected function getLoginCode()
+    {
+        return $this->request->input(self::ONE_TAP_LOGIN_KEY);
+    }
 
     /**
      * Get the GET parameters for the code request.
@@ -106,6 +116,12 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
             'scope' => 'openid profile',
             'nonce' => $this->getState()
         ];
+
+        // add the efaas login code if provided
+        if ($login_code = $this->getLoginCode()) {
+            $fields['acr_values'] = self::ONE_TAP_LOGIN_KEY.':'.$login_code;
+        }
+
 
         if ($this->usesState()) {
             $fields['state'] = $state;
