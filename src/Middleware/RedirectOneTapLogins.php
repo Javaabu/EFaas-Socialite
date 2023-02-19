@@ -37,7 +37,7 @@ abstract class RedirectOneTapLogins
         // check if the url already contains any query parameters
         $url_parts = parse_url($url);
 
-        $url .= $url_parts['query'] ? '&' : '?';
+        $url .= empty($url_parts['query']) ? '?' : '&';
 
         return $url .= EfaasProvider::ONE_TAP_LOGIN_KEY . '=' . $login_code;
     }
