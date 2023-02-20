@@ -263,7 +263,7 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
             'id_token_hint' => $access_token
         ];
 
-        if (! $redirect) {
+        if ($redirect) {
             $signout_params['post_logout_redirect_uri'] = $redirect;
         }
 
