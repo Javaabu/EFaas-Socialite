@@ -125,7 +125,6 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
             'client_id' => $this->clientId,
             'redirect_uri' => $this->redirectUrl,
             'response_type' => 'code id_token',
-            'prompt' => 'select_account',
             'response_mode' => 'form_post',
             'scope' => $this->formatScopes($this->getScopes(), $this->scopeSeparator),
             'nonce' => $this->getState()
