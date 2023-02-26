@@ -39,7 +39,7 @@ class EfaasSocialiteServiceProvider extends ServiceProvider
                 'as' => 'efaas.',
                 'namespace' => '\Javaabu\EfaasSocialite\Http\Controllers',
             ], function () {
-                $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+                $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
             });
         }
     }
