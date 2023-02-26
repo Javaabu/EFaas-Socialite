@@ -23,6 +23,13 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
     protected $enc_type = PHP_QUERY_RFC1738;
 
     /**
+     * Indicates if Efaas routes will be registered.
+     *
+     * @var bool
+     */
+    public static $registersRoutes = true;
+
+    /**
      * The scopes being requested.
      *
      * @var array
@@ -284,5 +291,15 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
         $token = Arr::get($response, 'access_token');
 
         return $this->userFromToken($token);
+    }
+
+    /**
+     * Configure Efaas to not register its routes.
+     *
+     * @return void
+     */
+    public static function ignoreRoutes()
+    {
+        static::$registersRoutes = false;
     }
 }

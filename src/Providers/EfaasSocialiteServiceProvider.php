@@ -2,8 +2,10 @@
 
 namespace Javaabu\EfaasSocialite\Providers;
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Javaabu\EfaasSocialite\EfaasProvider;
+use Javaabu\EfaasSocialite\RouteRegistrar;
 
 class EfaasSocialiteServiceProvider extends ServiceProvider
 {
@@ -21,5 +23,24 @@ class EfaasSocialiteServiceProvider extends ServiceProvider
                 return $socialite->buildProvider(EfaasProvider::class, $config);
             }
         );
+
+        $this->registerRoutes();
+    }
+
+    /**
+     * Register the eFaas routes
+     *
+     * @return void
+     */
+    protected function registerRoutes()
+    {
+        if (EfaasProvider::$registersRoutes) {
+            Route::group([
+                'as' => 'efaas.',
+                'namespace' => '\Javaabu\EfaasSocialite\Http\Controllers',
+            ], function () {
+                $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+            });
+        }
     }
 }

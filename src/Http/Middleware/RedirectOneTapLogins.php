@@ -1,6 +1,6 @@
 <?php
 
-namespace Javaabu\EfaasSocialite\Middleware;
+namespace Javaabu\EfaasSocialite\Http\Middleware;
 
 use Closure;
 use Javaabu\EfaasSocialite\EfaasProvider;

@@ -65,28 +65,32 @@ return Socialite::driver('efaas')->logOut($access_token, $post_logout_redirect_u
 
 #### Using eFaas One-tap Login
 
-To implement eFaas One Tap logins, create a middleware like so that will automatically redirect the login page to your eFaas redirect endpoint if a login code is present.
-Apply this middleware to your login page. Make sure this middleware is applied after any other middleware that is already applied to your login page.
+This package will automatically add an /efaas-one-tap-login endpoint to your web routes which will redirect to eFaas with the eFaas login code.
+
+Sometimes you may wish to customize the routes defined by the Efaas Provider. To achieve this, you first need to ignore the routes registered by Efaas Provider by adding `EfaasProvider::ignoreRoutes` to the register method of your application's `AppServiceProvider`:
 
 ``` php
-<?php
+use Javaabu\EfaasSocialite\EfaasProvider;
 
-namespace App\Http\Middleware;
-
-use Javaabu\EfaasSocialite\Middleware\RedirectOneTapLogins as Middleware;
-
-class RedirectEfaasOneTapLogins extends Middleware
+/**
+ * Register any application services.
+ */
+public function register(): void
 {
-    /**
-     * Get the efaas login redirect url
-     */
-    protected function getRedirectUrl($request)
-    {
-        // put your efaas redirect url here
-        return route('efaas.redirect');
-    }
+    EfaasProvider::ignoreRoutes();
 }
 
+```
+
+Then, you may copy the routes defined by Efaas Provider in [its routes file](/routes/web.php) to your application's routes/web.php file and modify them to your liking:
+
+```php
+Route::group([
+    'as' => 'efaas.',
+    'namespace' => '\Javaabu\EfaasSocialite\Http\Controllers',
+], function () {
+    // Efaas routes...
+});
 ```
 
 #### Authenticating from mobile apps
