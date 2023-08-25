@@ -14,8 +14,8 @@ use Javaabu\EfaasSocialite\EfaasUser as User;
 class EfaasProvider extends AbstractProvider implements ProviderInterface
 {
 
-    const DEVELOPMENT_EFAAS_URL = 'https://developer.egov.mv/efaas/connect';
-    const PRODUCTION_EFAAS_URL = 'https://efaas.egov.mv/connect';
+    const DEVELOPMENT_EFAAS_URL = 'https://developer.gov.mv/efaas/connect';
+    const PRODUCTION_EFAAS_URL = 'https://efaas.gov.mv/connect';
     const ONE_TAP_LOGIN_KEY = 'efaas_login_code';
 
     protected $stateless = true;

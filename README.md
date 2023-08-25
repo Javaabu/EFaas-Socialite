@@ -5,7 +5,7 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/javaabu/efaas-socialite.svg?style=flat-square)](https://scrutinizer-ci.com/g/javaabu/efaas-socialite)
 [![Total Downloads](https://img.shields.io/packagist/dt/javaabu/efaas-socialite.svg?style=flat-square)](https://packagist.org/packages/javaabu/efaas-socialite)
 
-[Laravel Socialite](https://github.com/laravel/socialite) Provider for [eFaas](https://efaas.egov.mv/).
+[Laravel Socialite](https://github.com/laravel/socialite) Provider for [eFaas](https://efaas.gov.mv/).
 
 ## Installation
 
