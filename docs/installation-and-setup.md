@@ -1,8 +1,10 @@
 ---
 title: Installation & Setup
+sidebar_position: 1.2
 ---
 
-# Installation
+
+# Installation & Setup
 You can install the package via composer:
 
 ```bash

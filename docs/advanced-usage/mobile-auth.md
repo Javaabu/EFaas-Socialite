@@ -1,5 +1,7 @@
 ---
 title: Authenticating From Mobile Apps
+description: Our take on authenticating via Efaas on mobile apps.
+sidebar_position: 2
 ---
 
 To authenticate users from mobile apps, redirect to the eFaas login screen through a Web View on the mobile app. Then intercept the `code` (authorization code) from eFaas after they redirect you back to your website after logging in to eFaas.

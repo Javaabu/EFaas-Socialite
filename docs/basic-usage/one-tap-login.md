@@ -1,3 +1,9 @@
+---
+title: One Tap Login
+description: Details on how the One Tap Login route works
+sidebar_position: 2
+---
+
 This package will automatically add an `/efaas-one-tap-login` endpoint to your web routes which will redirect to eFaas with the eFaas login code. Here is the route that it will register:
 ```php
 Route::middleware(['web', 'guest'])->group(function () {

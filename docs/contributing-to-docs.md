@@ -1,3 +1,8 @@
+---
+title: Contributing to the docs
+sidebar_position: 99
+---
+
 Should you come across any glitches in our documentation, your discerning eye is much appreciated. If you've got a solution itching to be implemented, feel free to submit a PR – we welcome your contribution.
 
 For your reference, each project's documentation resides snugly in the /docs folder. That's the hub where everything documentation-related unfolds. Just so you're in the loop, we employ [Docusaurus](https://docusaurus.io) to transform those markdown files into the HTML served to the public. And since we are using Docusaurus, there's a lot of special magic that you can use to make the docs even better. Here are a few resources that will be useful:

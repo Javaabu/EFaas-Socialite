@@ -1,3 +1,9 @@
+---
+title: Getting Started
+description: The bare minimum to get started with Efaas-Socialite
+sidebar_position: 1
+---
+
 :::info
 
 A demo implementation of this package is available [here](https://github.com/ncit-devs/Efaas-Implementation-Javaabu)

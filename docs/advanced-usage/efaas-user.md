@@ -1,3 +1,9 @@
+---
+title: Efaas User
+description: Deep dive on the Efaas User Object
+sidebar_position: 3
+---
+
 ## Efaas User Object Attributes
 The user object received from Socialite after login contains all the information received from Efaas systems to your application. It will contain all of the following attributes.
 
@@ -16,11 +22,11 @@ The user object received from Socialite after login contains all the information
 **`fname_dhivehi`**      | First name in Dhivehi                          | `އަހުމަދު`
 **`mname_dhivehi`**      | Middle name in Dhivehi                         |
 **`lname_dhivehi`**      | Last name in Dhivehi                           | `މުހައްމަދު`
-**`user_type`**          | User type<br>1- Maldivian<br>2- Work Permit Holder<br>3- Foreigners | 1
+**`user_type`**          | User types <ul><li>1. Maldivian</li> <li>2. Work Permit Holder</li> <li>3. Foreigners</li></ul> | 1
 **`user_type_desc`**     | Description of the user type                   | `Maldivian`
-**`verification_level`** | Verification level of the user in efaas<br>100: Not Verified<br>150: Verified by calling<br>200: Mobile Phone registered in the name of User<br>250: Verified in person (Limited)<br>300: Verified in person | `300`
+**`verification_level`** | Verification level of the user in efaas: <ul><li>100: Not Verified</li>  <li>150: Verified by calling</li>  <li>200: Mobile Phone registered in the name of User</li>  <li>250: Verified in person (Limited)</li>  <li>300: Verified in person</li></ul> | `300`
 **`verification_level_desc`**     | Description of the verification level | `Verified in person`
-**`user_state`**          | User's state<br>2- Pending Verification<br>3- Active | `3`
+**`user_state`**          | User's state <ul><li>2- Pending Verification</li>  <li>3- Active</li></ul> | `3`
 **`user_state_desc`**     | Description of user's state                   | `Active`
 **`birthdate`**           | Date of birth. (Carbon instance)              | `10/28/1987`
 **`is_workpermit_active`** | Is the work permit active                    | `false`

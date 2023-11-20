@@ -1,5 +1,7 @@
 ---
-titie: Changing Efaas Login Prompt Behavior
+title: Login Prompt Behavior
+description: Details on the ways the login prompt can be displayed
+sidebar_position: 1
 ---
 
 The eFaas login prompt behaviour can be customized by modifying the prompt option on your redirect request.
