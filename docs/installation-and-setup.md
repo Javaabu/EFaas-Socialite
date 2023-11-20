@@ -1,6 +1,6 @@
 ---
 title: Installation & Setup
-pagination_next: ./basic-usage/getting-started
+pagination_next: efaas-socialite/basic-usage/getting-started
 ---
 
 # Installation
