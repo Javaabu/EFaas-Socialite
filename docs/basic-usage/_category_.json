@@ -1,0 +1,11 @@
+{
+  "position": 2,
+  "label": "Basic Usage",
+  "collapsible": true,
+  "collapsed": false,
+  "link": {
+    "type": "generated-index",
+    "slug": "/Efaas-Socialite/_categories/basic-usage",
+    "description": "Everything you need to know to get started!"
+  }
+}

@@ -1,0 +1,11 @@
+{
+    "position": 3,
+    "label": "Advanced Usage",
+    "collapsible": true,
+    "collapsed": false,
+    "link": {
+      "type": "generated-index",
+      "slug": "/Efaas-Socialite/_categories/advanced-usage",
+      "description": "Some advanced concepts that will definitely come in handy!"
+    }
+  }
