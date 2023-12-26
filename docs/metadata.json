@@ -1,0 +1,5 @@
+{
+    "name": "eFaas Socialite",
+    "description": "eFaas Provider for Laravel Socialite",
+    "version": "1"
+}
