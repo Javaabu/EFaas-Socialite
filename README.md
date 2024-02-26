@@ -31,7 +31,8 @@ Javaabu\EfaasSocialite\Providers\EfaasSocialiteServiceProvider::class,
     'client_id' => env('EFAAS_CLIENT_ID'),  
     'client_secret' => env('EFAAS_CLIENT_SECRET'),  
     'redirect' => env('EFAAS_REDIRECT_URI'),
-    'mode' => env('EFAAS_MODE', 'development'), // supports production, development            
+    'mode' => env('EFAAS_MODE', 'development'), // supports production, development
+    'scopes' => env('EFAAS_SCOPES', 'openid efaas.profile'),
 ],
 ```
 
