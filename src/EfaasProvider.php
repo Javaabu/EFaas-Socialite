@@ -30,20 +30,6 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
     public static $registersRoutes = true;
 
     /**
-     * The scopes being requested.
-     *
-     * @var array
-     */
-    protected $scopes = ['openid', 'profile'];
-
-    /**
-     * The separating character for the requested scopes.
-     *
-     * @var string
-     */
-    protected $scopeSeparator = ' ';
-
-    /**
      * Get correct endpoint for API
      *
      * @param $key
@@ -133,7 +119,7 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
             'redirect_uri' => $this->redirectUrl,
             'response_type' => 'code id_token',
             'response_mode' => 'form_post',
-            'scope' => $this->formatScopes($this->getScopes(), $this->scopeSeparator),
+            'scope' => $this->config('scopes'),
             'nonce' => $this->getState()
         ];
 
