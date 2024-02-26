@@ -34,7 +34,7 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
      *
      * @var array
      */
-    protected $scopes = ['openid', 'profile'];
+    protected $scopes = ['openid', 'efaas.profile'];
 
     /**
      * The separating character for the requested scopes.
