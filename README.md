@@ -9,11 +9,18 @@
 
 ## Installation
 
-You can install the package via `composer`:
+For Laravel 6.0+, you can install the package via `composer`:
 
 ``` bash
 composer require javaabu/efaas-socialite
 ```
+
+For Laravel 5.6, use version 1.x
+
+``` bash
+composer require javaabu/efaas-socialite:^1.0
+```
+
 
 **Laravel 5.5** and above uses Package Auto-Discovery, so doesn't require you to manually add the ServiceProvider.
 
@@ -52,6 +59,20 @@ and in your callback handler, you can access the user data like so.
 
 ```
 $efaas_user = Socialite::driver('efaas')->user();
+$access_token = $efaas_user->token;
+```
+
+#### Enabling PKCE
+
+By default, this package has PKCE disabled. To enable PKCE, use the `enablePKCE()` method in both your redirect call and the callback handler.
+
+```php
+return Socialite::driver('efaas')->enablePKCE()->redirect();
+```
+
+```
+// inside callback handler
+$efaas_user = Socialite::driver('efaas')->enablePKCE()->user();
 $access_token = $efaas_user->token;
 ```
 

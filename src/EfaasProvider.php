@@ -147,6 +147,11 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
             $fields['state'] = $state;
         }
 
+        if ($this->usesPKCE()) {
+            $fields['code_challenge'] = $this->getCodeChallenge();
+            $fields['code_challenge_method'] = $this->getCodeChallengeMethod();
+        }
+
         return array_merge($fields, $this->parameters);
     }
 
