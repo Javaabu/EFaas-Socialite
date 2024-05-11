@@ -57,7 +57,7 @@ return Socialite::driver('efaas')->redirect();
 
 and in your callback handler, you can access the user data like so.
 
-```
+```php
 $efaas_user = Socialite::driver('efaas')->user();
 $access_token = $efaas_user->token;
 ```
@@ -70,7 +70,7 @@ By default, this package has PKCE disabled. To enable PKCE, use the `enablePKCE(
 return Socialite::driver('efaas')->enablePKCE()->redirect();
 ```
 
-```
+```php
 // inside callback handler
 $efaas_user = Socialite::driver('efaas')->enablePKCE()->user();
 $access_token = $efaas_user->token;
