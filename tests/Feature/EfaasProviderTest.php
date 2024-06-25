@@ -15,14 +15,20 @@ class EfaasProviderTest extends TestCase
 
         Route::get('/oauth/{socialite_provider}/callback', [LoginController::class, 'redirectToProvider'])->where('socialite_provider', 'efaas');
 
-        $this->get('/oauth/efaas/callback')
-            ->assertRedirectContains(
+        $response = $this->get('/oauth/efaas/callback')
+                         ->assertRedirect();
+
+        $redirect_url = $response->headers->get('Location');
+
+        $this->assertStringStartsWith(
                 'https://efaas.gov.mv/connect/authorize?'.
                 'client_id='.self::CLIENT_ID.
                 '&redirect_uri='. urlencode(self::REDIRECT_URL) .
                 '&response_type=' . urlencode('code id_token') .
                 '&response_mode=form_post'.
                 '&scope=' . urlencode('openid efaas.profile efaas.birthdate efaas.email efaas.mobile efaas.photo efaas.permanent_address efaas.country efaas.passport_number efaas.work_permit_status') .
-                '&nonce=');
+                '&nonce=',
+                $redirect_url
+        );
     }
 }
