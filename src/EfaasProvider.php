@@ -35,7 +35,7 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
      * @var array
      */
     protected $scopes = [
-        'openid',
+        'efaas.openid',
         'efaas.profile',
         'efaas.birthdate',
         'efaas.email',
@@ -215,7 +215,7 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
             'is_workpermit_active' => Arr::get($user, 'is_workpermit_active') == 'True',
             'updated_at' =>  $updated_at ? Carbon::parse($updated_at) : null,
             'country_dialing_code' => Arr::get($user, 'country_dialing_code'),
-            'country_code' => Arr::get($user, 'country_code'),
+            'country_code' => (int) Arr::get($user, 'country_code'),
             'country_code_alpha3' => Arr::get($user, 'country_code_alpha3'),
             'verified' => Arr::get($user, 'verified') == 'True',
             'verification_type' => Arr::get($user, 'verification_type'),

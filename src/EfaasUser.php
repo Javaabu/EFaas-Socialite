@@ -30,7 +30,7 @@ use Laravel\Socialite\Two\User;
  * @property bool $is_workpermit_active Boolean indicating if the work permit is active (only applicable to work permit holders.)
  * @property string $passport_number Passport number of the user
  * @property string $country_name Name of the country of the user
- * @property string $country_code ISO 3-digit code
+ * @property int $country_code ISO 3-digit code
  * @property string $country_code_alpha3 ISO alpha3 code
 
  * @property string $full_name Full name of the user
