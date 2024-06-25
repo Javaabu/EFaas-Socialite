@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Javaabu\EfaasSocialite\Enums\UserStates;
 use Javaabu\EfaasSocialite\Enums\UserTypes;
-use Javaabu\EfaasSocialite\Enums\VerificationLevels;
+use Javaabu\EfaasSocialite\Enums\VerificationTypes;
 use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\ProviderInterface;
 use Javaabu\EfaasSocialite\EfaasUser as User;
@@ -34,7 +34,18 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
      *
      * @var array
      */
-    protected $scopes = ['openid', 'efaas.profile'];
+    protected $scopes = [
+        'openid',
+        'efaas.profile',
+        'efaas.birthdate',
+        'efaas.email',
+        'efaas.mobile',
+        'efaas.photo',
+        'efaas.permanent_address',
+        'efaas.country',
+        'efaas.passport_number',
+        'efaas.work_permit_status'
+    ];
 
     /**
      * The separating character for the requested scopes.
@@ -131,17 +142,15 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
         $fields = [
             'client_id' => $this->clientId,
             'redirect_uri' => $this->redirectUrl,
-            'response_type' => 'code id_token',
+            'response_type' => 'code' . (! $this->usesPKCE() ? ' id_token' : ''),
             'response_mode' => 'form_post',
             'scope' => $this->formatScopes($this->getScopes(), $this->scopeSeparator),
-            'nonce' => $this->getState()
         ];
 
         // add the efaas login code if provided
         if ($login_code = $this->getLoginCode()) {
             $fields['acr_values'] = self::ONE_TAP_LOGIN_KEY.':'.$login_code;
         }
-
 
         if ($this->usesState()) {
             $fields['state'] = $state;
@@ -150,6 +159,8 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
         if ($this->usesPKCE()) {
             $fields['code_challenge'] = $this->getCodeChallenge();
             $fields['code_challenge_method'] = $this->getCodeChallengeMethod();
+        } else {
+            $fields['nonce'] = $this->getState();
         }
 
         return array_merge($fields, $this->parameters);
@@ -166,6 +177,21 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
         return $this->request->input('code');
     }
 
+    /**
+     * Create a user instance from the given data.
+     *
+     * @param  array  $response
+     * @param  array  $user
+     * @return \Laravel\Socialite\Two\User
+     */
+    protected function userInstance(array $response, array $user)
+    {
+        /** @var EfaasUser $user */
+        $user = parent::userInstance($response, $user);
+
+        return $user->setIdToken(Arr::get($response, 'id_token'));
+    }
+
 
     /**
      * Map the raw user array to a Socialite User instance.
@@ -175,38 +201,44 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
      */
     protected function mapUserToObject(array $user)
     {
-        $address = json_decode(Arr::get($user, 'address'), true);
-        $user_type = Arr::get($user, 'user_type');
-        $user_state = Arr::get($user, 'user_state');
-        $verification_level = Arr::get($user, 'verification_level');
+        $permanent_address = EfaasAddress::make(Arr::get($user, 'permanent_address'));
         $dob = Arr::get($user, 'birthdate');
         $updated_at = Arr::get($user, 'updated_at');
-        $given_name = Arr::get($user, 'given_name');
+        $last_verified_date = Arr::get($user, 'last_verified_date');
 
         return (new User)->setRaw($user)->map([
-            'name' => Arr::get($user, 'name'),
-            'given_name' => $given_name,
-            'middle_name' => Arr::get($user, 'middle_name'),
-            'family_name' => Arr::get($user, 'family_name'),
-            'idnumber' => Arr::get($user, 'idnumber'),
             'gender' => Arr::get($user, 'gender'),
-            'address' => $address ?: null,
-            'phone_number' => Arr::get($user, 'phone_number') ?: null,
+            'idnumber' => Arr::get($user, 'idnumber'),
             'email' => Arr::get($user, 'email'),
-            'fname_dhivehi' => Arr::get($user, 'fname_dhivehi'),
-            'mname_dhivehi' => Arr::get($user, 'mname_dhivehi'),
-            'lname_dhivehi' => Arr::get($user, 'lname_dhivehi'),
-            'user_type' => Arr::get($user, 'user_type'),
-            'user_type_desc' => UserTypes::getDescription($user_type),
-            'verification_level' => $verification_level,
-            'verification_level_desc' => VerificationLevels::getDescription($verification_level),
-            'user_state' => $user_state,
-            'user_state_desc' => UserStates::getDescription($user_state),
             'birthdate' => $dob ? Carbon::parse($dob) : null,
+            'passport_number' => Arr::get($user, 'passport_number'),
             'is_workpermit_active' => Arr::get($user, 'is_workpermit_active') == 'True',
             'updated_at' =>  $updated_at ? Carbon::parse($updated_at) : null,
-            'avatar' => Arr::get($user, 'picture') ?: null,
-            'nickname' => $given_name ?: null,
+            'country_dialing_code' => Arr::get($user, 'country_dialing_code'),
+            'country_code' => Arr::get($user, 'country_code'),
+            'country_code_alpha3' => Arr::get($user, 'country_code_alpha3'),
+            'verified' => Arr::get($user, 'verified') == 'True',
+            'verification_type' => Arr::get($user, 'verification_type'),
+            'first_name' => Arr::get($user, 'first_name'),
+            'middle_name' => Arr::get($user, 'middle_name'),
+            'last_name' => Arr::get($user, 'last_name'),
+            'full_name' => Arr::get($user, 'full_name'),
+            'first_name_dhivehi' => Arr::get($user, 'first_name_dhivehi'),
+            'middle_name_dhivehi' => Arr::get($user, 'middle_name_dhivehi'),
+            'last_name_dhivehi' => Arr::get($user, 'last_name_dhivehi'),
+            'full_name_dhivehi' => Arr::get($user, 'full_name_dhivehi'),
+            'permanent_address' => $permanent_address ?: null,
+            'user_type_description' => Arr::get($user, 'user_type_description'),
+            'mobile' => Arr::get($user, 'mobile'),
+            'photo' => Arr::get($user, 'photo'),
+            'country_name' => Arr::get($user, 'country_name'),
+            'last_verified_date' => $last_verified_date ? Carbon::parse($last_verified_date) : null,
+            'sub' => Arr::get($user, 'sub'),
+
+            // Socialite Specific
+            'name' => Arr::get($user, 'full_name'),
+            'avatar' => Arr::get($user, 'photo') ?: null,
+            'nickname' => Arr::get($user, 'first_name'),
         ]);
     }
 
@@ -258,20 +290,21 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
      * Connect provider that the end-user has logged out of the relying party site
      * (the client application).
      *
-     * @param string $access_token ID token (obtained at login)
-     * @param string|null $redirect URL to which the RP is requesting that the End-User's User Agent
+     * @param string       $id_token  ID token (obtained at login)
+     * @param string|null  $redirect  URL to which the RP is requesting that the End-User's User Agent
      * be redirected after a logout has been performed. The value MUST have been previously
      * registered with the OP. Value can be null.
      * https://github.com/jumbojett/OpenID-Connect-PHP/blob/master/src/OpenIDConnectClient.php
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function logOut($access_token, $redirect)
+    public function logOut($id_token, $redirect)
     {
         $signout_endpoint = $this->getApiUrl('endsession');
 
         $signout_params = [
-            'id_token_hint' => $access_token
+            'id_token_hint' => $id_token,
+            'state' => $this->getState(),
         ];
 
         if ($redirect) {
