@@ -4,9 +4,6 @@ namespace Javaabu\EfaasSocialite;
 
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
-use Javaabu\EfaasSocialite\Enums\UserStates;
-use Javaabu\EfaasSocialite\Enums\UserTypes;
-use Javaabu\EfaasSocialite\Enums\VerificationTypes;
 use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\ProviderInterface;
 use Javaabu\EfaasSocialite\EfaasUser as User;
@@ -35,7 +32,7 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
      * @var array
      */
     protected $scopes = [
-        'efaas.openid',
+        'openid',
         'efaas.profile',
         'efaas.birthdate',
         'efaas.email',

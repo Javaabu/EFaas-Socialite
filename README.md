@@ -1,8 +1,7 @@
 # eFaas Laravel Socialite
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/javaabu/efaas-socialite.svg?style=flat-square)](https://packagist.org/packages/javaabu/efaas-socialite)
-[![Build Status](https://img.shields.io/travis/javaabu/efaas-socialite/master.svg?style=flat-square)](https://travis-ci.org/javaabu/efaas-socialite)
-[![Quality Score](https://img.shields.io/scrutinizer/g/javaabu/efaas-socialite.svg?style=flat-square)](https://scrutinizer-ci.com/g/javaabu/efaas-socialite)
+[![Test Status](../../actions/workflows/run-tests.yml/badge.svg)](../../actions/workflows/run-tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/javaabu/efaas-socialite.svg?style=flat-square)](https://packagist.org/packages/javaabu/efaas-socialite)
 
 [Laravel Socialite](https://github.com/laravel/socialite) Provider for [eFaas](https://efaas.gov.mv/).
@@ -329,8 +328,10 @@ $permanent_address->getDhivehiFormattedAddress(); // Get the address in Dhivehi 
 
 ## Testing
 
+You can run the tests with
+
 ``` bash
-composer test
+./vendor/bin/phpunit
 ```
 
 ## Changelog

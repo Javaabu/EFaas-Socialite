@@ -5,7 +5,6 @@ namespace Javaabu\EfaasSocialite\Providers;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Javaabu\EfaasSocialite\EfaasProvider;
-use Javaabu\EfaasSocialite\RouteRegistrar;
 
 class EfaasSocialiteServiceProvider extends ServiceProvider
 {
