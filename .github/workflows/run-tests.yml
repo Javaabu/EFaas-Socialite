@@ -33,7 +33,7 @@ jobs:
                         carbon: ^2.63
                         phpunit: ^9.5
                     -   laravel: 8.*
-                        testbench: 6.*
+                        testbench: ^6.44
                         carbon: ^2.63
                         phpunit: ^9.5
                     -   laravel: 7.*
