@@ -202,15 +202,16 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
         $dob = Arr::get($user, 'birthdate');
         $updated_at = Arr::get($user, 'updated_at');
         $last_verified_date = Arr::get($user, 'last_verified_date');
+        $datetime_format = 'd/m/Y h:i:s A';
 
         return (new User)->setRaw($user)->map([
             'gender' => Arr::get($user, 'gender'),
             'idnumber' => Arr::get($user, 'idnumber'),
             'email' => Arr::get($user, 'email'),
-            'birthdate' => $dob ? Carbon::parse($dob) : null,
+            'birthdate' => $dob ? Carbon::createFromFormat('d/m/Y', $dob) : null,
             'passport_number' => Arr::get($user, 'passport_number'),
             'is_workpermit_active' => Arr::get($user, 'is_workpermit_active') == 'True',
-            'updated_at' =>  $updated_at ? Carbon::parse($updated_at) : null,
+            'updated_at' =>  $updated_at ? Carbon::createFromFormat($datetime_format, $updated_at) : null,
             'country_dialing_code' => Arr::get($user, 'country_dialing_code'),
             'country_code' => (int) Arr::get($user, 'country_code'),
             'country_code_alpha3' => Arr::get($user, 'country_code_alpha3'),
@@ -229,7 +230,7 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
             'mobile' => Arr::get($user, 'mobile'),
             'photo' => Arr::get($user, 'photo'),
             'country_name' => Arr::get($user, 'country_name'),
-            'last_verified_date' => $last_verified_date ? Carbon::parse($last_verified_date) : null,
+            'last_verified_date' => $last_verified_date ? Carbon::createFromFormat($datetime_format, $last_verified_date) : null,
             'sub' => Arr::get($user, 'sub'),
 
             // Socialite Specific

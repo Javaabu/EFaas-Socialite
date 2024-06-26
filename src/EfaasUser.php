@@ -3,7 +3,6 @@
 namespace Javaabu\EfaasSocialite;
 
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
 use Javaabu\EfaasSocialite\Enums\UserTypes;
 use Laravel\Socialite\Two\User;
 
@@ -25,7 +24,7 @@ use Laravel\Socialite\Two\User;
  * @property string $email Email of the user
  * @property string $mobile Mobile number of the user
  * @property string $country_dialing_code Dialing code of the registered number
- * @property string $birthdate Date of birth of the user
+ * @property Carbon $birthdate Date of birth of the user
  * @property string $photo Photo of the user
  * @property bool $is_workpermit_active Boolean indicating if the work permit is active (only applicable to work permit holders.)
  * @property string $passport_number Passport number of the user
