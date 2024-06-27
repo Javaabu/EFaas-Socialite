@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Log;
+use Javaabu\EfaasSocialite\EfaasProvider;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User;
 
@@ -34,8 +35,12 @@ class LoginController
      */
     public function handleProviderCallback(Request $request, $provider)
     {
+        /** @var EfaasProvider $provider */
+        $provider = Socialite::driver($provider);
+        $provider->setRequest($request);
+
         /** @var User $oauth_user */
-        $oauth_user = Socialite::driver($provider)->user();
+        $oauth_user = $provider->user();
 
 
         session()->put('efaas_user', $oauth_user);

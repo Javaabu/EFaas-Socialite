@@ -35,11 +35,15 @@ class EfaasAddress
 
     public string $CountryISOThreeLetterCode;
 
-    public static function make($json_string): self
+    public static function make($json_string): ?self
     {
         $decoded = json_decode($json_string, true);
 
         $new = new static;
+
+        if (! is_array($decoded)) {
+            return null;
+        }
 
         foreach ($decoded as $key => $value) {
             $new->$key = $value;

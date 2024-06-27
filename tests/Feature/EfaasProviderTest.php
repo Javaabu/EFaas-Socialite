@@ -7,6 +7,7 @@ use Javaabu\EfaasSocialite\EfaasAddress;
 use Javaabu\EfaasSocialite\EfaasUser;
 use Javaabu\EfaasSocialite\Tests\TestCase;
 use Javaabu\EfaasSocialite\Tests\TestSupport\Controllers\LoginController;
+use Laravel\Socialite\Two\InvalidStateException;
 
 class EfaasProviderTest extends TestCase
 {
@@ -15,12 +16,17 @@ class EfaasProviderTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        Route::get('/oauth/{socialite_provider}', [LoginController::class, 'redirectToProvider'])->where('socialite_provider', 'efaas');
+        Route::get('/oauth/{socialite_provider}', [LoginController::class, 'redirectToProvider'])
+            ->middleware('web')
+            ->where('socialite_provider', 'efaas');
 
         $response = $this->get('/oauth/efaas')
-                         ->assertRedirect();
+                         ->assertRedirect()
+                         ->assertSessionHas('state');
 
         $redirect_url = $response->headers->get('Location');
+
+        $state = session('state');
 
         $this->assertStringStartsWith(
                 'https://efaas.gov.mv/connect/authorize?'.
@@ -29,6 +35,7 @@ class EfaasProviderTest extends TestCase
                 '&response_type=' . urlencode('code id_token') .
                 '&response_mode=form_post'.
                 '&scope=' . urlencode('openid efaas.profile efaas.birthdate efaas.email efaas.mobile efaas.photo efaas.permanent_address efaas.country efaas.passport_number efaas.work_permit_status') .
+                '&state=' . $state .
                 '&nonce=',
                 $redirect_url
         );
@@ -42,9 +49,12 @@ class EfaasProviderTest extends TestCase
         $login_code = 'a5d9a8ac-d583-41a7-8844-545dd608fad7';
 
         $response = $this->get('/efaas-one-tap-login?efaas_login_code=' . $login_code)
-            ->assertRedirect();
+            ->assertRedirect()
+            ->assertSessionHas('state');
 
         $redirect_url = $response->headers->get('Location');
+
+        $state = session('state');
 
         $this->assertStringStartsWith(
             'https://efaas.gov.mv/connect/authorize?'.
@@ -54,6 +64,7 @@ class EfaasProviderTest extends TestCase
             '&response_mode=form_post'.
             '&scope=' . urlencode('openid efaas.profile efaas.birthdate efaas.email efaas.mobile efaas.photo efaas.permanent_address efaas.country efaas.passport_number efaas.work_permit_status') .
             '&acr_values=' . urlencode('efaas_login_code:' . $login_code) .
+            '&state=' . $state .
             '&nonce=',
             $redirect_url
         );
@@ -64,7 +75,7 @@ class EfaasProviderTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $provider = $this->mockProvider();
+        $provider = $this->mockStatelessProvider();
 
         $this->mockProviderGetAccessToken($provider);
 
@@ -159,7 +170,7 @@ class EfaasProviderTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $provider = $this->mockProvider();
+        $provider = $this->mockStatelessProvider();
 
         $this->mockProviderGetAccessToken($provider);
 
@@ -204,5 +215,107 @@ class EfaasProviderTest extends TestCase
 
         $this->assertEquals($permanent_address->getFormattedAddress(), 'Dhaftharu. asd, Something');
         $this->assertEquals($permanent_address->getDhivehiFormattedAddress(), 'ދަފްތަރު. އޭއެސްޑީ');
+    }
+
+    /** @test */
+    public function it_fails_if_state_is_not_provided()
+    {
+        $this->withoutExceptionHandling();
+
+        $provider = $this->mockProvider();
+
+        $this->mockProviderGetAccessToken($provider);
+
+        $provider->shouldReceive('getUserByToken')
+                ->andReturn([]);
+
+        $this->setMockProvider($provider);
+
+        Route::post('/oauth/{socialite_provider}/callback', [LoginController::class, 'handleProviderCallback'])
+            ->middleware('web')
+            ->where('socialite_provider', 'efaas');
+
+        session()->put('state', 'test_state');
+
+        try {
+            $this->post('/oauth/efaas/callback', [
+                'code' => 'xxxxxx',
+                'id_token' => 'xxxxxx',
+                'scope' => 'openid efaas.profile efaas.birthdate efaas.email efaas.mobile efaas.photo efaas.permanent_address efaas.country efaas.passport_number efaas.work_permit_status',
+                'session_state' => 'xxxxxx'
+            ]);
+        } catch (InvalidStateException $e) {
+            $this->assertInstanceOf(InvalidStateException::class, $e);
+            return;
+        }
+
+        $this->fail(sprintf('The expected "%s" exception was not thrown.', InvalidStateException::class));
+    }
+
+    /** @test */
+    public function it_fails_if_state_does_not_match()
+    {
+        $this->withoutExceptionHandling();
+
+        $provider = $this->mockProvider();
+
+        $this->mockProviderGetAccessToken($provider);
+
+        $provider->shouldReceive('getUserByToken')
+            ->andReturn([]);
+
+        $this->setMockProvider($provider);
+
+        Route::post('/oauth/{socialite_provider}/callback', [LoginController::class, 'handleProviderCallback'])
+            ->middleware('web')
+            ->where('socialite_provider', 'efaas');
+
+        session()->put('state', 'test_state');
+
+        try {
+            $this->post('/oauth/efaas/callback', [
+                'code' => 'xxxxxx',
+                'id_token' => 'xxxxxx',
+                'scope' => 'openid efaas.profile efaas.birthdate efaas.email efaas.mobile efaas.photo efaas.permanent_address efaas.country efaas.passport_number efaas.work_permit_status',
+                'session_state' => 'xxxxxx',
+                'state' => 'something_else'
+            ]);
+        } catch (InvalidStateException $e) {
+            $this->assertInstanceOf(InvalidStateException::class, $e);
+            return;
+        }
+
+        $this->fail(sprintf('The expected "%s" exception was not thrown.', InvalidStateException::class));
+    }
+
+    /** @test */
+    public function it_can_validate_the_state()
+    {
+        $this->withoutExceptionHandling();
+
+        $provider = $this->mockProvider();
+
+        $this->mockProviderGetAccessToken($provider);
+
+        $provider->shouldReceive('getUserByToken')
+            ->andReturn([]);
+
+        $this->setMockProvider($provider);
+
+        Route::post('/oauth/{socialite_provider}/callback', [LoginController::class, 'handleProviderCallback'])
+            ->middleware('web')
+            ->where('socialite_provider', 'efaas');
+
+        session()->put('state', 'test_state');
+
+        $this->post('/oauth/efaas/callback', [
+            'code' => 'xxxxxx',
+            'id_token' => 'xxxxxx',
+            'scope' => 'openid efaas.profile efaas.birthdate efaas.email efaas.mobile efaas.photo efaas.permanent_address efaas.country efaas.passport_number efaas.work_permit_status',
+            'session_state' => 'xxxxxx',
+            'state' => 'test_state'
+        ])
+            ->assertRedirect()
+            ->assertSessionHas('efaas_user');
     }
 }

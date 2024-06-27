@@ -15,8 +15,6 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
     const PRODUCTION_EFAAS_URL = 'https://efaas.gov.mv/connect';
     const ONE_TAP_LOGIN_KEY = 'efaas_login_code';
 
-    protected $stateless = true;
-
     protected $enc_type = PHP_QUERY_RFC1738;
 
     /**

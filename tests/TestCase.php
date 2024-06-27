@@ -2,6 +2,7 @@
 
 namespace Javaabu\EfaasSocialite\Tests;
 
+use Illuminate\Session\SessionManager;
 use Javaabu\EfaasSocialite\EfaasProvider;
 use Javaabu\EfaasSocialite\Providers\EfaasSocialiteServiceProvider;
 use Laravel\Socialite\Facades\Socialite;
@@ -40,6 +41,19 @@ abstract class TestCase extends BaseTestCase
             SocialiteServiceProvider::class,
             EfaasSocialiteServiceProvider::class
         ];
+    }
+
+    protected function mockStatelessProvider(): MockInterface
+    {
+        $provider = $this->mockProvider();
+
+        $provider->shouldReceive('usesState')
+                 ->andReturnFalse();
+
+        $provider->shouldReceive('isStateless')
+                ->andReturnTrue();
+
+        return $provider;
     }
 
     protected function mockProvider(): MockInterface
