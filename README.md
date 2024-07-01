@@ -10,6 +10,7 @@
 
 <!-- TOC -->
 * [eFaas Laravel Socialite](#efaas-laravel-socialite)
+  * [Requirements](#requirements)
   * [Installation](#installation)
     * [Add configuration to your `.env` file](#add-configuration-to-your-env-file)
     * [Publishing the config file](#publishing-the-config-file)
@@ -45,6 +46,14 @@
   * [License](#license)
 <!-- TOC -->
 
+## Requirements
+
+This package requires the following:
+
+- Laravel 6.0 or higher
+- PHP 7.4 or higher
+- ext-openssl PHP extension
+
 ## Installation
 
 For Laravel 6.0+, you can install the package via `composer`:
@@ -57,14 +66,6 @@ For Laravel 5.6, use version 1.x
 
 ``` bash
 composer require javaabu/efaas-socialite:^1.0
-```
-
-**Laravel 5.5** and above uses Package Auto-Discovery, so doesn't require you to manually add the ServiceProvider.
-
-After updating composer, add the ServiceProvider to the providers array in config/app.php
-
-``` bash
-Javaabu\EfaasSocialite\Providers\EfaasSocialiteServiceProvider::class,
 ```
 
 ### Add configuration to your `.env` file
