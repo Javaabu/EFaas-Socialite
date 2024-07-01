@@ -11,14 +11,19 @@
 <!-- TOC -->
 * [eFaas Laravel Socialite](#efaas-laravel-socialite)
   * [Installation](#installation)
-    * [Add configuration to `config/services.php`](#add-configuration-to-configservicesphp)
+    * [Add configuration to your `.env` file](#add-configuration-to-your-env-file)
+    * [Publishing the config file](#publishing-the-config-file)
+    * [Publishing migrations](#publishing-migrations)
   * [Usage](#usage)
       * [Enabling PKCE](#enabling-pkce)
       * [Logging out the eFaas User](#logging-out-the-efaas-user)
       * [Using eFaas One-tap Login](#using-efaas-one-tap-login)
+      * [Implementing Front Channel Single Sign Out](#implementing-front-channel-single-sign-out)
+      * [Implementing Back Channel Single Sign Out](#implementing-back-channel-single-sign-out)
       * [Authenticating from mobile apps](#authenticating-from-mobile-apps)
       * [Changing the eFaas login prompt behaviour](#changing-the-efaas-login-prompt-behaviour)
-      * [Available Methods for eFaas User](#available-methods-for-efaas-user)
+      * [Available Methods for eFaas Provider](#available-methods-for-efaas-provider)
+      * [Available Methods and Public Properties for eFaas User](#available-methods-and-public-properties-for-efaas-user)
       * [Changing the eFaas request scopes](#changing-the-efaas-request-scopes)
       * [Getting eFaas data from eFaas User object](#getting-efaas-data-from-efaas-user-object)
       * [Available eFaas data fields](#available-efaas-data-fields)
@@ -62,15 +67,99 @@ After updating composer, add the ServiceProvider to the providers array in confi
 Javaabu\EfaasSocialite\Providers\EfaasSocialiteServiceProvider::class,
 ```
 
-### Add configuration to `config/services.php`
+### Add configuration to your `.env` file
+
+Add the following config to your `.env` file
+
+```dotenv
+EFAAS_CLIENT_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+EFAAS_CLIENT_SECRET=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+EFAAS_REDIRECT_URI=https://your-app.com/path/to/efaas/callback
+EFAAS_MODE=development
+
+# for production use
+#EFAAS_MODE=production
+```
+
+### Publishing the config file
+
+Optionally you can also publish the config file to `config/efaas.php`:
+
+```bash
+php artisan vendor:publish --provider="Javaabu\EfaasSocialite\Providers\EfaasSocialiteServiceProvider" --tag="efaas-config"
+```
+
+This is the default content of the config file:
 
 ```php
-'efaas' => [    
-    'client_id' => env('EFAAS_CLIENT_ID'),  
-    'client_secret' => env('EFAAS_CLIENT_SECRET'),  
-    'redirect' => env('EFAAS_REDIRECT_URI'),
-    'mode' => env('EFAAS_MODE', 'development'), // supports production, development            
-],
+<?php
+
+return [
+
+    /**
+     * eFaas client config
+     */
+    'client' => [
+        /**
+         * eFaas Client ID
+         */
+        'client_id' => env('EFAAS_CLIENT_ID'),
+
+        /**
+         * eFaas Client Secret
+         */
+        'client_secret' => env('EFAAS_CLIENT_SECRET'),
+
+        /**
+         * eFaas Redirect url
+         */
+        'redirect' => env('EFAAS_REDIRECT_URI'),
+
+        /**
+         * Development mode
+         * supports "production" and "development"
+         */
+        'mode' => env('EFAAS_MODE', 'development'),
+    ],
+
+    /*
+     * This model will be used to store efaas session sids
+     */
+    'session_model' => \Javaabu\EfaasSocialite\Models\EfaasSession::class,
+
+    /*
+     * This handler will be used to manage saving and destroying efaas session records
+     */
+    'session_handler' => \Javaabu\EfaasSocialite\EfaasSessionHandler::class,
+
+    /*
+     * This is the name of the table that will be created by the migration and
+     * used by the EfaasSession model shipped with this package.
+     */
+    'table_name' => 'efaas_sessions',
+
+    /*
+     * This is the database connection that will be used by the migration and
+     * the EfaasSession model shipped with this package. In case it's not set
+     * Laravel's database.default will be used instead.
+     */
+    'database_connection' => env('EFAAS_SESSIONS_DB_CONNECTION'),
+];
+
+
+```
+
+### Publishing migrations
+
+This package ships with the migrations for an `efaas_sessions` table which can be used to implement back channel logout. You can publish these migrations using the following Artisan command:
+
+```bash
+php artisan vendor:publish --provider="Javaabu\EfaasSocialite\Providers\EfaasSocialiteServiceProvider" --tag="efaas-migrations"
+```
+
+After publishing the migrations, you can run them:
+```bash
+php artisan migrate
 ```
 
 ## Usage
@@ -89,7 +178,7 @@ request NCIT to whitelist your server IP.
 return Socialite::driver('efaas')->redirect();
 ```
 
-and in your callback handler, you can access the user data like so. Remember to save the user's `id_token` and `sid` (session id) to your session.
+and in your callback handler, you can access the user data like so. Remember to save the user's `id_token` and `sid` (session id).
 
 ```php
 $efaas_user = Socialite::driver('efaas')->user();
@@ -164,6 +253,77 @@ Route::group([
 ], function () {
     // Efaas routes...
 });
+```
+
+#### Implementing Front Channel Single Sign Out
+
+First, during login, in your efaas callback handler method, save the users `sid` (session ID) to your session.
+
+```php
+$efaas_user = Socialite::driver('efaas')->user();
+$sid = $efaas_user->sid;
+
+session()->put('efaas_sid', $sid);
+```
+
+Then, in your single sign out controller handler method, first retrieve the logout token's `sid` using the eFaas provider's `getLogoutSid()` method. The method will return `null` if the provided logout token is invalid. You can then compare the saved `sid` in your current session with the retrieved `sid` and logout the user if they match.
+
+```php
+...
+public function handleFrontChannelSingleSignOut(Request $request)
+{
+    $saved_sid = session('efaas_sid');
+    $request_sid = Socialite::driver('efaas')->getLogoutSid();
+    
+    if ($request_sid && $saved_sid == $request_sid) {
+        // the logout session matches your saved sid
+        // logout your user here
+        auth()->guard('web')->logout();
+        
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+    }     
+      
+    return redirect()->to('/your-redirect-url')        
+}
+...
+```
+
+#### Implementing Back Channel Single Sign Out
+
+For Back Channel Logout, you will need to use Laravel's `database` session driver and the provided `efaas_sessions` migration. 
+
+During login, save the user's `sid` (session ID) using the eFaas provider's `sessionHandler()`:
+
+```php
+$efaas_user = Socialite::driver('efaas')->user();
+$sid = $efaas_user->sid;
+
+Socialite::driver('efaas')
+    ->sessionHandler()
+    ->saveSid($sid);
+```
+
+Then, in your single sign out controller handler method, first retrieve the logout token's `sid` using the eFaas provider's `getLogoutSid()` method. The method will return `null` if the provided logout token is invalid. You can then use the eFaas provider's `sessionHandler()` to logout all laravel sessions that match the `sid`.
+
+```php
+...
+public function handleBackChannelSingleSignOut(Request $request)
+{    
+    $sid = Socialite::driver('efaas')->getLogoutSid();
+    
+    if ($sid) {
+        Socialite::driver('efaas')
+            ->sessionHandler()
+            ->logoutSessions($sid);
+    }
+    
+    // for back channel logout you must return 200 OK response
+    return response()->json([
+        'success' => ! empty($request_sid)  
+    ]);    
+}
+...
 ```
 
 #### Authenticating from mobile apps

@@ -4,6 +4,7 @@ namespace Javaabu\EfaasSocialite;
 
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Javaabu\EfaasSocialite\Contracts\EfaasSessionHandlerContract;
 use Javaabu\EfaasSocialite\Exceptions\JwtTokenInvalidException;
 use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\ProviderInterface;
@@ -26,6 +27,7 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
     const DEVELOPMENT_EFAAS_URL = 'https://developer.gov.mv/efaas';
     const PRODUCTION_EFAAS_URL = 'https://efaas.gov.mv';
     const ONE_TAP_LOGIN_KEY = 'efaas_login_code';
+    const LOGOUT_TOKEN_KEY = 'logout_token';
 
     protected $enc_type = PHP_QUERY_RFC1738;
 
@@ -75,7 +77,7 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
      */
     protected function config($key, $default = null)
     {
-        return config("services.efaas.$key", $default);
+        return config("efaas.client.$key", $default);
     }
 
     /**
@@ -147,11 +149,37 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
     }
 
     /**
+     * Get the logout sid the request.
+     *
+     * @return string
+     */
+    public function getLogoutSid()
+    {
+        $token = $this->getLogoutToken();
+
+        try {
+            return $this->getSidFromToken($token);
+        } catch (JwtTokenInvalidException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get the logout token from the request.
+     *
+     * @return string
+     */
+    public function getLogoutToken()
+    {
+        return $this->request->input(self::LOGOUT_TOKEN_KEY);
+    }
+
+    /**
      * Get the login code from the request.
      *
      * @return string
      */
-    protected function getLoginCode()
+    public function getLoginCode()
     {
         return $this->request->input(self::ONE_TAP_LOGIN_KEY);
     }
@@ -252,7 +280,7 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
      * Validates and extracts id from an id token or logout token
      *
      * @param $token
-     * @return void
+     * @return string
      */
     public function getSidFromToken($token)
     {
@@ -485,5 +513,13 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
     public static function ignoreRoutes()
     {
         static::$registersRoutes = false;
+    }
+
+    /**
+     * Return a new session handler instance
+     */
+    public function sessionHandler(): EfaasSessionHandlerContract
+    {
+        return app()->make(EfaasSessionHandlerContract::class);
     }
 }

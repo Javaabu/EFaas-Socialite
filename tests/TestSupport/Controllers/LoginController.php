@@ -50,6 +50,27 @@ class LoginController
         return redirect($this->redirectPath());
     }
 
+    /**
+     * Handle single logout
+     * @return Application|RedirectResponse|Response|Redirector
+     */
+    public function handleSingleLogout(Request $request, $provider)
+    {
+        /** @var EfaasProvider $provider */
+        $provider = Socialite::driver($provider);
+        $provider->setRequest($request);
+
+        $logout_token = $provider->getLogoutToken();
+        $logout_sid = $provider->getLogoutSid();
+
+
+        session()->put('logout_token', $logout_token);
+        session()->put('logout_sid', $logout_sid);
+
+        // redirect to home
+        return redirect($this->redirectPath());
+    }
+
     protected function redirectPath()
     {
         return '/';

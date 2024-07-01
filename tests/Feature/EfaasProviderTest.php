@@ -350,7 +350,7 @@ class EfaasProviderTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $sid = '9F662C7D6A3A1A980B261EF225B300C8';
+        $sid = self::SID;
 
         $provider = $this->mockStatelessProvider();
 
@@ -414,5 +414,64 @@ class EfaasProviderTest extends TestCase
         }
 
         $this->fail(sprintf('The expected "%s" exception was not thrown.', JwtTokenInvalidException::class));
+    }
+
+    /** @test */
+    public function it_can_retrieve_the_logout_token_for_back_channel_logout()
+    {
+        $this->withoutExceptionHandling();
+
+        $provider = $this->mockValidProvider();
+
+        $this->setMockProvider($provider);
+
+        Route::post('/oauth/{socialite_provider}/logout', [LoginController::class, 'handleSingleLogout'])->where('socialite_provider', 'efaas');
+
+        $this->post('/oauth/efaas/logout', [
+            'logout_token' => self::ID_TOKEN,
+        ])
+            ->assertRedirect()
+            ->assertSessionHas('logout_token', self::ID_TOKEN)
+            ->assertSessionHas('logout_sid', self::SID);
+    }
+
+    /** @test */
+    public function it_can_retrieve_the_logout_token_for_front_channel_logout()
+    {
+        $this->withoutExceptionHandling();
+
+        $provider = $this->mockValidProvider();
+
+        $this->setMockProvider($provider);
+
+        Route::get('/oauth/{socialite_provider}/logout', [LoginController::class, 'handleSingleLogout'])->where('socialite_provider', 'efaas');
+
+        $this->get('/oauth/efaas/logout?logout_token=' . urlencode(self::ID_TOKEN))
+            ->assertRedirect()
+            ->assertSessionHas('logout_token', self::ID_TOKEN)
+            ->assertSessionHas('logout_sid', self::SID);
+    }
+
+    /** @test */
+    public function it_gives_null_sid_on_expired_logout_token()
+    {
+        $this->withoutExceptionHandling();
+
+        $provider = $this->mockProvider();
+
+        $this->mockProviderGetAccessToken($provider);
+        $this->mockProviderGetJwksResponse($provider);
+        $this->mockProviderSystemTime($provider,  '2024-06-25T18:19:00+0500');
+
+        $this->setMockProvider($provider);
+
+        Route::post('/oauth/{socialite_provider}/logout', [LoginController::class, 'handleSingleLogout'])->where('socialite_provider', 'efaas');
+
+        $this->post('/oauth/efaas/logout', [
+            'logout_token' => self::ID_TOKEN,
+        ])
+            ->assertRedirect()
+            ->assertSessionHas('logout_token', self::ID_TOKEN)
+            ->assertSessionHas('logout_sid', null);
     }
 }
