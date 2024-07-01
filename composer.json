@@ -14,7 +14,7 @@
         "ext-openssl": "*",
         "laravel/socialite": "^5.15",
         "illuminate/support": "^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0 || ^11.0",
-        "lcobucci/jwt": "^4.0 || ^5.0",
+        "lcobucci/jwt": "^4.3 || ^5.0",
         "lcobucci/clock": "^2.0 || ^3.0",
         "strobotti/php-jwk": "^1.4"
     },
