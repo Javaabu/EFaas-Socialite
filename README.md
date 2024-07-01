@@ -378,6 +378,12 @@ $provider->getPublicKey('5CDA5CF378397733DD33EFBDA82D0F317DCC1D53RS256'); // Ret
 ```php
 $efaas_user->isMaldivian(); // Check if is a Maldivian
 $efaas_user->getDhivehiName(); // Full name in Dhivehi
+$efaas_user->getPhotoMimetype(); // Get the mimetype of the user photo
+$efaas_user->getPhotoExtension(); // Get the file extension of the user photo
+$efaas_user->getPhotoBase64(); // Get the user photo as a base64 encoded string
+$efaas_user->getPhotoDataUrl(); // Get the user photo as a data url
+$efaas_user->savePhoto('photo', './path/to/save'); // Saves the user photo to ./path/to/save/photo.jpg and returns the full file path
+$efaas_user->getAvatar(); // Alias of getPhotoBase64()
 $efaas_user->sid; // Session id of the user
 $efaas_user->id_token; // ID Token of the user
 $efaas_user->token; // Access token of the user

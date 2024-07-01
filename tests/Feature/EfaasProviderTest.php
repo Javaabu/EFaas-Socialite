@@ -9,6 +9,7 @@ use Javaabu\EfaasSocialite\EfaasUser;
 use Javaabu\EfaasSocialite\Exceptions\JwtTokenInvalidException;
 use Javaabu\EfaasSocialite\Tests\TestCase;
 use Javaabu\EfaasSocialite\Tests\TestSupport\Controllers\LoginController;
+use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\InvalidStateException;
 
 class EfaasProviderTest extends TestCase
@@ -473,5 +474,75 @@ class EfaasProviderTest extends TestCase
             ->assertRedirect()
             ->assertSessionHas('logout_token', self::ID_TOKEN)
             ->assertSessionHas('logout_sid', null);
+    }
+
+    /** @test */
+    public function it_can_retreive_photo_as_a_base64_encoded_string()
+    {
+        $this->withoutExceptionHandling();
+
+        $provider = $this->mockProvider();
+
+        $this->mockUserPhoto($provider);
+
+        $this->setMockProvider($provider);
+
+        /** @var EfaasUser $efaas_user */
+        $efaas_user = Socialite::driver('efaas')->user();
+
+        $this->assertEquals($this->getTestPhotoJson()['data']['photo'], $efaas_user->getPhotoBase64());
+    }
+
+    /** @test */
+    public function it_can_get_the_photo_mime_type()
+    {
+        $this->withoutExceptionHandling();
+
+        $provider = $this->mockProvider();
+
+        $this->mockUserPhoto($provider);
+
+        $this->setMockProvider($provider);
+
+        /** @var EfaasUser $efaas_user */
+        $efaas_user = Socialite::driver('efaas')->user();
+
+        $this->assertEquals('image/png', $efaas_user->getPhotoMimetype());
+    }
+
+    /** @test */
+    public function it_can_get_the_photo_extension()
+    {
+        $this->withoutExceptionHandling();
+
+        $provider = $this->mockProvider();
+
+        $this->mockUserPhoto($provider);
+
+        $this->setMockProvider($provider);
+
+        /** @var EfaasUser $efaas_user */
+        $efaas_user = Socialite::driver('efaas')->user();
+
+        $this->assertEquals('png', $efaas_user->getPhotoExtension());
+    }
+
+    /** @test */
+    public function it_can_get_the_photo_as_a_data_url()
+    {
+        $this->withoutExceptionHandling();
+
+        $provider = $this->mockProvider();
+
+        $this->mockUserPhoto($provider);
+
+        $this->setMockProvider($provider);
+
+        /** @var EfaasUser $efaas_user */
+        $efaas_user = Socialite::driver('efaas')->user();
+
+        $this->assertStringStartsWith('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAVYAAAGGCAIAAACv8z77AAABBGlDQ1BJQ0MgUHJvZmlsZQAAKM9jYGCSYAACFgMGhty8kqIgdyeFiMgoBQYkkJhcXMCAGzAyMHy7BiIZGC7rMpAOOFNSi5OB9AcgLikCWg40MgXIFkmHsCtA7', $efaas_user->getPhotoDataUrl());
+        $this->assertStringStartsWith('data:image/png;base64,iVBORw0KGgoAAAANS', $efaas_user->getAvatar());
+        //$this->assertEquals($this->getTestPhotoDataUrl(), $efaas_user->getPhotoDataUrl());
     }
 }

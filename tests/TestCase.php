@@ -3,7 +3,10 @@
 namespace Javaabu\EfaasSocialite\Tests;
 
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Javaabu\EfaasSocialite\EfaasProvider;
+use Javaabu\EfaasSocialite\EfaasUser;
+use Javaabu\EfaasSocialite\EfaasUser as User;
 use Javaabu\EfaasSocialite\Providers\EfaasSocialiteServiceProvider;
 use Javaabu\EfaasSocialite\Tests\TestSupport\Providers\TestServiceProvider;
 use Laravel\Socialite\Facades\Socialite;
@@ -18,7 +21,7 @@ abstract class TestCase extends BaseTestCase
     const CLIENT_ID = 'abc44ec3-aa7b-4eab-a50e-4d18f17c3f62';
     const CLIENT_SECRET = '9fz11cd8-7bb8-40fa-b3eb-bc5dc43439c3';
     const REDIRECT_URL = 'http://localhost/oauth/efaas/callback';
-    const ACCESS_TOKEN = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjVDREE1Q0YzNzgzOTc3MzNERDMzRUZCREE4MkQwRjMxN0RDQzFENTNSUzI1NiIsInR5cCI6ImF0K2p3dCIsIng1dCI6IlhOcGM4M2c1ZHpQZE0tLTlxQzBQTVgzTUhWTSJ9.eyJuYmYiOjE3MTkzMjE1MzEsImV4cCI6MTcxOTMyNTEzMSwiaXNzIjoiaHR0cHM6Ly9kZXZlbG9wZXIuZ292Lm12L2VmYWFzIiwiY2xpZW50X2lkIjoiNDllM2NlNmEtZmYyMS00OGU5LWE2NmEtMDM3NzRkMmRhNTM4Iiwic3ViIjoiM2I0NmRjNGItZjU2NS00MjBiLWFmOGYtOTMxMmM4NmU0MGNiIiwiYXV0aF90aW1lIjoxNzE5MzAxOTA2LCJpZHAiOiJsb2NhbCIsImp0aSI6IjlCQzNBOEE1MUJDNENFRTY3NkYxRENFODg0ODhEQjI1Iiwic2lkIjoiOUY2NjJDN0Q2QTNBMUE5ODBCMjYxRUYyMjVCMzAwQzgiLCJpYXQiOjE3MTkzMjE1MzEsInNjb3BlIjpbIm9wZW5pZCIsImVmYWFzLnByb2ZpbGUiLCJlZmFhcy5iaXJ0aGRhdGUiLCJlZmFhcy5lbWFpbCIsImVmYWFzLm1vYmlsZSIsImVmYWFzLnBob3RvIiwiZWZhYXMucGVybWFuZW50X2FkZHJlc3MiLCJlZmFhcy5jb3VudHJ5IiwiZWZhYXMucGFzc3BvcnRfbnVtYmVyIiwiZWZhYXMud29ya19wZXJtaXRfc3RhdHVzIl0sImFtciI6WyJwd2QiXX0.teSbFFwuQMEnbM6GDX72rXMHsONDJ_lttZ4iWx0SoUSnd61v9TmuSTw8jMWl4rzM7WR9I5tP4vFzDWN9-aR9iSzC0Xi_Sy4l5yAX_dVZsnevdFv-eLjZeTgqBDSgdHxsr6wUS1ihstuEZaURLmdq6iqu1pdK68WC0HvQucQca21oUItJkaIvhhfvCd0ebFVi4lcOQzgctmw_Je59w6HphGrc1qe4E09oSA_qonUxsxfzwJX9GSZPZcuno69nbCt0QZYixgxjMkAHKy89h6DFNO8kjXQb0oiO-tGNqRHwOlrfy9boAxQcmPBshTir23EgqCH9Av0NAbhi0qFtHglFEg';
+    const ACCESS_TOKEN = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjVDREE1Q0YzNzgzOTc3MzNERDMzRUZCREE4MkQwRjMxN0RDQzFENTNSUzI1NiIsInR5cCI6ImF0K2p3dCIsIng1dCI6IlhOcGM4M2c1ZHpQZE0tLTlxQzBQTVgzTUhWTSJ9.eyJuYmYiOjE3MTk4NzA4NDQsImV4cCI6MTcxOTg3NDQ0NCwiaXNzIjoiaHR0cHM6Ly9kZXZlbG9wZXIuZ292Lm12L2VmYWFzIiwiY2xpZW50X2lkIjoiNDllM2NlNmEtZmYyMS00OGU5LWE2NmEtMDM3NzRkMmRhNTM4Iiwic3ViIjoiOTY0NmE3ZWQtMWM3Ny00ZTA4LTliM2MtOGFiNWE4YWVkOWQ1IiwiYXV0aF90aW1lIjoxNzE5ODcwNzcwLCJpZHAiOiJsb2NhbCIsImp0aSI6IjY1QzI4NzJFMzRCNDk4NTA0Nzk3MTBBN0RCRDlFMzBDIiwic2lkIjoiNkJBN0MyNDg5NEZEMzg0RUJCOEVGNDM4RDU2NkNBQjMiLCJpYXQiOjE3MTk4NzA4NDQsInNjb3BlIjpbIm9wZW5pZCIsImVmYWFzLnByb2ZpbGUiLCJlZmFhcy5iaXJ0aGRhdGUiLCJlZmFhcy5lbWFpbCIsImVmYWFzLm1vYmlsZSIsImVmYWFzLnBob3RvIiwiZWZhYXMucGVybWFuZW50X2FkZHJlc3MiLCJlZmFhcy5jb3VudHJ5IiwiZWZhYXMucGFzc3BvcnRfbnVtYmVyIiwiZWZhYXMud29ya19wZXJtaXRfc3RhdHVzIl0sImFtciI6WyJwd2QiXX0.CAeNxrrBS4EAZu6Gd7JBNA-O6cDOve1eCVmVCnXx0kDTaZymJ0PMb3doCbDhP7_zMANGkHhOLLfs8UvWKBPahN35e-nUQg5kjcB4_uBEQgtgOJe4cQ6An5ss7pV2isXWvXfzkks5-Fp7xM5Ds89SyWpKglhShDVKxtdbz4Idaxg5vN50LItrwkfsGbR1Ta69pYGFARc9gHVi97gGZQ-APBC9uVNYhiGZWp8jl4xKHG2qd7sS_P-oXEHod_9-WJlhDbQeqwQ78AlhOjBDWJH9zrzk_at6ZVp0tRNhyXdnA2hwE7Ctvhg-GZ6QRkBVuqMLO77tuNLldEpJOTA7CqUCAQ';
     const ID_TOKEN = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjVDREE1Q0YzNzgzOTc3MzNERDMzRUZCREE4MkQwRjMxN0RDQzFENTNSUzI1NiIsInR5cCI6IkpXVCIsIng1dCI6IlhOcGM4M2c1ZHpQZE0tLTlxQzBQTVgzTUhWTSJ9.eyJuYmYiOjE3MTkzMjE1MzEsImV4cCI6MTcxOTMyMTgzMSwiaXNzIjoiaHR0cHM6Ly9kZXZlbG9wZXIuZ292Lm12L2VmYWFzIiwiYXVkIjoiNDllM2NlNmEtZmYyMS00OGU5LWE2NmEtMDM3NzRkMmRhNTM4Iiwibm9uY2UiOiJzZGFzZGFzZGFzZCIsImlhdCI6MTcxOTMyMTUzMSwiYXRfaGFzaCI6IlZoOWZ3cExJRnVqbmU3SFlkcWwwaXciLCJzaWQiOiI5RjY2MkM3RDZBM0ExQTk4MEIyNjFFRjIyNUIzMDBDOCIsInN1YiI6IjNiNDZkYzRiLWY1NjUtNDIwYi1hZjhmLTkzMTJjODZlNDBjYiIsImF1dGhfdGltZSI6MTcxOTMwMTkwNiwiaWRwIjoibG9jYWwiLCJtaWRkbGVfbmFtZSI6IlRlc3QgVXNlciIsImdlbmRlciI6Ik0iLCJpZG51bWJlciI6IkE5MDAzMTgiLCJlbWFpbCI6ImNzYzMxOEBnbWFpbC5jb20iLCJiaXJ0aGRhdGUiOiI2LzMvMTk5MCIsInBhc3Nwb3J0X251bWJlciI6IiIsImlzX3dvcmtwZXJtaXRfYWN0aXZlIjoiRmFsc2UiLCJ1cGRhdGVkX2F0IjoiMS8xLzE5OTUgMTI6MDA6MDAgQU0iLCJjb3VudHJ5X2RpYWxpbmdfY29kZSI6Iis5NjAiLCJjb3VudHJ5X2NvZGUiOiI0NjIiLCJjb3VudHJ5X2NvZGVfYWxwaGEzIjoiTURWIiwidmVyaWZpZWQiOiJGYWxzZSIsInZlcmlmaWNhdGlvbl90eXBlIjoiTkEiLCJmaXJzdF9uYW1lIjoiQ1NDIiwibGFzdF9uYW1lIjoiMTgiLCJmdWxsX25hbWUiOiJDU0MgVGVzdCBVc2VyIDE4IiwiZmlyc3RfbmFtZV9kaGl2ZWhpIjoiIiwibWlkZGxlX25hbWVfZGhpdmVoaSI6IiIsImxhc3RfbmFtZV9kaGl2ZWhpIjoiIiwiZnVsbF9uYW1lX2RoaXZlaGkiOiIiLCJwZXJtYW5lbnRfYWRkcmVzcyI6IntcIkFkZHJlc3NMaW5lMVwiOlwiYXNkXCIsXCJBZGRyZXNzTGluZTJcIjpcIlwiLFwiUm9hZFwiOlwiXCIsXCJBdG9sbEFiYnJldmlhdGlvblwiOlwiS1wiLFwiQXRvbGxBYmJyZXZpYXRpb25EaGl2ZWhpXCI6XCLehlwiLFwiSXNsYW5kTmFtZVwiOlwiTWFsZSdcIixcIklzbGFuZE5hbWVEaGl2ZWhpXCI6XCLeid6n3o3erFwiLFwiSG9tZU5hbWVEaGl2ZWhpXCI6XCJcIixcIldhcmRcIjpcIkRoYWZ0aGFydVwiLFwiV2FyZEFiYnJldmlhdGlvbkVuZ2xpc2hcIjpcIkRoYWZ0aGFydVwiLFwiV2FyZEFiYnJldmlhdGlvbkRoaXZlaGlcIjpcIlwiLFwiQ291bnRyeVwiOlwiTWFsZGl2ZXNcIixcIkNvdW50cnlJU09UaHJlZURpZ2l0Q29kZVwiOlwiNDYyXCIsXCJDb3VudHJ5SVNPVGhyZWVMZXR0ZXJDb2RlXCI6XCJNRFZcIn0iLCJ1c2VyX3R5cGVfZGVzY3JpcHRpb24iOiJNYWxkaXZpYW4iLCJtb2JpbGUiOiI3NzMwMDE4IiwicGhvdG8iOiJodHRwczovL2VmYWFzLWFwaS5kZXZlbG9wZXIuZ292Lm12L3VzZXIvcGhvdG8iLCJjb3VudHJ5X25hbWUiOiJNYWxkaXZlcyIsImxhc3RfdmVyaWZpZWRfZGF0ZSI6IiIsImFtciI6WyJwd2QiXX0.bD4WhgwKYTx1--Z3-OGGGgN-nDto-g2UH_QHmQmxLDtLoWfIlatVb9jU7kiArseUvnzXXZ-mNNC9ACSoWZwb1l3uuKs50DkR6iybGx8NGH9kA_TeM6enirbRXO5s4njCDgCrhNV6c_j8hH_OHef0Tiu43wpWVF79ayxv1SRv54tZtb9NE7tumFTEcI_bwVMDxe499ZCgilNGcaB6xNOJY4_Iw166R8eZ_Q37ccVlQRSPaKtsf-LRdVjDTA8T7D4Gbl2etOpqC0NcN1eF2y5fHWGsggRawVVTR8b3LtAYm4bJxuG9j5Cj-EPDBfBAo0LMWCsqVzC0O2p8tj6C8vuOgg';
     const SID = '9F662C7D6A3A1A980B261EF225B300C8';
 
@@ -123,6 +126,36 @@ abstract class TestCase extends BaseTestCase
                 }',
                 true
             ));
+
+        return $provider;
+    }
+
+    protected function getTestPhotoJson(): array
+    {
+        return json_decode(file_get_contents(__DIR__ . '/TestSupport/resources/photo.json'), true);
+    }
+
+    protected function getTestPhotoDataUrl(): string
+    {
+        return file_get_contents(__DIR__ . '/TestSupport/resources/photo-data-url.txt');
+    }
+
+    protected function mockUserPhoto(MockInterface $provider): MockInterface
+    {
+        $url = 'https://efaas-api.developer.gov.mv/user/photo';
+
+        $user = $this->partialMock(EfaasUser::class);
+
+        $user->shouldReceive('getPhotoResponse')
+            ->andReturn($this->getTestPhotoJson());
+
+        $user->setRaw(['photo' => $url])->map([
+            'photo' => $url,
+            'avatar' => $url,
+        ]);
+
+        $provider->shouldReceive('user')
+                ->andReturn($user);
 
         return $provider;
     }
