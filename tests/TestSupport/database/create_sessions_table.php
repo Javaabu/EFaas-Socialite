@@ -2,12 +2,10 @@
 
 namespace Javaabu\EfaasSocialite\Tests\TestSupport\database;
 
-
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-return new class extends Migration {
+class CreateSessionsTable extends Migration {
     public function up()
     {
         Schema::create('sessions', function ($table) {
@@ -24,4 +22,4 @@ return new class extends Migration {
     {
         Schema::dropIfExists('sessions');
     }
-};
+}

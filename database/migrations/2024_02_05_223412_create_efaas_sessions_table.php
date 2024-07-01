@@ -9,7 +9,7 @@ class CreateEfaasSessionsTable extends Migration
     public function up()
     {
         Schema::connection(config('efaas.database_connection'))->create(config('efaas.table_name'), function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
             $table->string('laravel_session_id')->unique();
             $table->string('efaas_sid')->index();
             $table->timestamps();

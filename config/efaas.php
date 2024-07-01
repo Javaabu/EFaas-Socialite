@@ -30,11 +30,13 @@ return [
 
     /*
      * This model will be used to store efaas session sids
+     * The class must implement \Javaabu\EfaasSocialite\Contracts\EfaasSessionContract
      */
     'session_model' => \Javaabu\EfaasSocialite\Models\EfaasSession::class,
 
     /*
      * This handler will be used to manage saving and destroying efaas session records
+     * The class must implement \Javaabu\EfaasSocialite\Contracts\EfaasSessionHandlerContract
      */
     'session_handler' => \Javaabu\EfaasSocialite\EfaasSessionHandler::class,
 
