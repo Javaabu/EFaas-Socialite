@@ -4,7 +4,9 @@ namespace Javaabu\EfaasSocialite\Tests\Feature;
 
 use Illuminate\Support\Facades\Route;
 use Javaabu\EfaasSocialite\EfaasAddress;
+use Javaabu\EfaasSocialite\EfaasProvider;
 use Javaabu\EfaasSocialite\EfaasUser;
+use Javaabu\EfaasSocialite\Exceptions\JwtTokenInvalidException;
 use Javaabu\EfaasSocialite\Tests\TestCase;
 use Javaabu\EfaasSocialite\Tests\TestSupport\Controllers\LoginController;
 use Laravel\Socialite\Two\InvalidStateException;
@@ -75,9 +77,7 @@ class EfaasProviderTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $provider = $this->mockStatelessProvider();
-
-        $this->mockProviderGetAccessToken($provider);
+        $provider = $this->mockValidStatelessProvider();
 
         $provider->shouldReceive('getUserByToken')
             ->with(self::ACCESS_TOKEN)
@@ -117,7 +117,7 @@ class EfaasProviderTest extends TestCase
 
         $this->post('/oauth/efaas/callback', [
             'code' => '21FD3643DC0ECB8684E8266702B033E027BCFC9DD03908F4BB6FC9C751DE81DE',
-            'id_token' => 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjVDREE1Q0YzNzgzOTc3MzNERDMzRUZCREE4MkQwRjMxN0RDQzFENTNSUzI1NiIsInR5cCI6IkpXVCIsIng1dCI6IlhOcGM4M2c1ZHpQZE0tLTlxQzBQTVgzTUhWTSJ9.eyJuYmYiOjE3MTkzNzg5NDYsImV4cCI6MTcxOTM3OTI0NiwiaXNzIjoiaHR0cHM6Ly9kZXZlbG9wZXIuZ292Lm12L2VmYWFzIiwiYXVkIjoiNDllM2NlNmEtZmYyMS00OGU5LWE2NmEtMDM3NzRkMmRhNTM4Iiwibm9uY2UiOiJSM3p0a0h5SGdhZktoMWs0NDV3UEt6elRxWEJ4STNiVFhaU0t2MUhYIiwiaWF0IjoxNzE5Mzc4OTQ2LCJjX2hhc2giOiJucnRSa2tyaGJKRVl0Mm9kN3pSa1pBIiwic2lkIjoiOUY2NjJDN0Q2QTNBMUE5ODBCMjYxRUYyMjVCMzAwQzgiLCJzdWIiOiIzYjQ2ZGM0Yi1mNTY1LTQyMGItYWY4Zi05MzEyYzg2ZTQwY2IiLCJhdXRoX3RpbWUiOjE3MTkzMDE5MDYsImlkcCI6ImxvY2FsIiwibWlkZGxlX25hbWUiOiJUZXN0IFVzZXIiLCJnZW5kZXIiOiJNIiwiaWRudW1iZXIiOiJBOTAwMzE4IiwiZW1haWwiOiJjc2MzMThAZ21haWwuY29tIiwiYmlydGhkYXRlIjoiNi8zLzE5OTAiLCJwYXNzcG9ydF9udW1iZXIiOiIiLCJpc193b3JrcGVybWl0X2FjdGl2ZSI6IkZhbHNlIiwidXBkYXRlZF9hdCI6IjEvMS8xOTk1IDEyOjAwOjAwIEFNIiwiY291bnRyeV9kaWFsaW5nX2NvZGUiOiIrOTYwIiwiY291bnRyeV9jb2RlIjoiNDYyIiwiY291bnRyeV9jb2RlX2FscGhhMyI6Ik1EViIsInZlcmlmaWVkIjoiRmFsc2UiLCJ2ZXJpZmljYXRpb25fdHlwZSI6Ik5BIiwiZmlyc3RfbmFtZSI6IkNTQyIsImxhc3RfbmFtZSI6IjE4IiwiZnVsbF9uYW1lIjoiQ1NDIFRlc3QgVXNlciAxOCIsImZpcnN0X25hbWVfZGhpdmVoaSI6IiIsIm1pZGRsZV9uYW1lX2RoaXZlaGkiOiIiLCJsYXN0X25hbWVfZGhpdmVoaSI6IiIsImZ1bGxfbmFtZV9kaGl2ZWhpIjoiIiwicGVybWFuZW50X2FkZHJlc3MiOiJ7XCJBZGRyZXNzTGluZTFcIjpcImFzZFwiLFwiQWRkcmVzc0xpbmUyXCI6XCJcIixcIlJvYWRcIjpcIlwiLFwiQXRvbGxBYmJyZXZpYXRpb25cIjpcIktcIixcIkF0b2xsQWJicmV2aWF0aW9uRGhpdmVoaVwiOlwi3oZcIixcIklzbGFuZE5hbWVcIjpcIk1hbGUnXCIsXCJJc2xhbmROYW1lRGhpdmVoaVwiOlwi3onep96N3qxcIixcIkhvbWVOYW1lRGhpdmVoaVwiOlwiXCIsXCJXYXJkXCI6XCJEaGFmdGhhcnVcIixcIldhcmRBYmJyZXZpYXRpb25FbmdsaXNoXCI6XCJEaGFmdGhhcnVcIixcIldhcmRBYmJyZXZpYXRpb25EaGl2ZWhpXCI6XCJcIixcIkNvdW50cnlcIjpcIk1hbGRpdmVzXCIsXCJDb3VudHJ5SVNPVGhyZWVEaWdpdENvZGVcIjpcIjQ2MlwiLFwiQ291bnRyeUlTT1RocmVlTGV0dGVyQ29kZVwiOlwiTURWXCJ9IiwidXNlcl90eXBlX2Rlc2NyaXB0aW9uIjoiTWFsZGl2aWFuIiwibW9iaWxlIjoiNzczMDAxOCIsInBob3RvIjoiaHR0cHM6Ly9lZmFhcy1hcGkuZGV2ZWxvcGVyLmdvdi5tdi91c2VyL3Bob3RvIiwiY291bnRyeV9uYW1lIjoiTWFsZGl2ZXMiLCJsYXN0X3ZlcmlmaWVkX2RhdGUiOiIiLCJhbXIiOlsicHdkIl19.jYKQc7H6K52IRPm2csGSfINCfgJoz47PBZ1fg9EkHYBgvzenjcL9X7AVHfpbYFpQH3SDM268QYdkq7gWqM_RX8pbZPB3yGmiAzPYL3d4YMgyw2p1UMKbE_F96uDKJBwA5IHdA0WF1jzOptWplgOmGKIlPMizvkH7zIgr6th8WgonqZK23JY2Xh5rzoNHWabne-zDEiQ5qjQn_W5WMkpY7iv7lKpl1-YRXOFMWQLPoGeucEtpWz52ufwwwzTZ7NFPm9hmGxizo1F9LMwFfQ84ghrIGarBKus3qxYa8fM-HrGIyPBl3h1U3HQX31UYy2pit9huPWp_e8MiMVf1imo3RA',
+            'id_token' => self::ID_TOKEN,
             'scope' => 'openid efaas.profile efaas.birthdate efaas.email efaas.mobile efaas.photo efaas.permanent_address efaas.country efaas.passport_number efaas.work_permit_status',
             'session_state' => 'JAfehG74z0MLdngrDpHLpUDA1FJhEKOvDwU0yp_Np7w.4C84F61DD069280A518176B67796F4FA'
         ])
@@ -170,9 +170,7 @@ class EfaasProviderTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $provider = $this->mockStatelessProvider();
-
-        $this->mockProviderGetAccessToken($provider);
+        $provider = $this->mockValidStatelessProvider();
 
         $provider->shouldReceive('getUserByToken')
             ->andReturn(json_decode('{
@@ -293,9 +291,7 @@ class EfaasProviderTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $provider = $this->mockProvider();
-
-        $this->mockProviderGetAccessToken($provider);
+        $provider = $this->mockValidProvider();
 
         $provider->shouldReceive('getUserByToken')
             ->andReturn([]);
@@ -317,5 +313,106 @@ class EfaasProviderTest extends TestCase
         ])
             ->assertRedirect()
             ->assertSessionHas('efaas_user');
+    }
+
+    /** @test */
+    public function it_can_get_the_public_key_for_the_given_kid()
+    {
+        $this->withoutExceptionHandling();
+
+        $kid = '5CDA5CF378397733DD33EFBDA82D0F317DCC1D53RS256';
+
+        /** @var EfaasProvider $provider */
+        $provider = $this->mockStatelessProvider();
+        $this->mockProviderGetJwksResponse($provider);
+
+        $expected_public_key =
+            "-----BEGIN PUBLIC KEY-----\n".
+            "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxNcqX+FTpecM5p00QUgS\n".
+            "0zx8eX/TujLs3sX83qujZKabP/JnAG2PVKwgNJyHaqukJcA6FDIlCMTxy0riCLUC\n".
+            "5e6qtJA7Gn9hXEOJKjzq+TYvKnVqeamu7JeczW3ZiUXgGoI0p6pafxdkHz4CZuTh\n".
+            "KEjtpeVRXyqAfuzN7liNdPgjWsj50YQvyFjQlQgiMZIXIGESEu2nYK5VST/T891r\n".
+            "PtfYKnRUhOu7HYggeXk5qYsoEVSFpBdZWzpCaprFGUx9fg89xeQpd0jzhpw8+gg3\n".
+            "UsnpuuY8+KXUVzGPVLb4lKymQC8o8a1VyzA/GyqHovk7K3zWoyK1WD1aNwFFHLM8\n".
+            "DQIDAQAB\n".
+            "-----END PUBLIC KEY-----";
+
+        $normalized_key =  preg_replace('/\R+/', '', $expected_public_key);
+
+        $this->assertEquals($normalized_key, preg_replace('/\R+/', '', $provider->getPublicKey($kid)));
+
+        // call twice to make sure key is cached
+        $this->assertEquals($normalized_key, preg_replace('/\R+/', '', $provider->getPublicKey($kid)));
+    }
+
+    /** @test */
+    public function it_can_get_the_sid_from_the_id_token()
+    {
+        $this->withoutExceptionHandling();
+
+        $sid = '9F662C7D6A3A1A980B261EF225B300C8';
+
+        $provider = $this->mockStatelessProvider();
+
+        $this->mockProviderGetAccessToken($provider);
+        $this->mockProviderGetJwksResponse($provider);
+        $this->mockProviderSystemTime($provider,  '2024-06-25T18:19:00+0500');
+
+        $provider->shouldReceive('getUserByToken')
+            ->with(self::ACCESS_TOKEN)
+            ->andReturn([]);
+
+        $this->setMockProvider($provider);
+
+        Route::post('/oauth/{socialite_provider}/callback', [LoginController::class, 'handleProviderCallback'])->where('socialite_provider', 'efaas');
+
+        $this->post('/oauth/efaas/callback', [
+            'code' => '21FD3643DC0ECB8684E8266702B033E027BCFC9DD03908F4BB6FC9C751DE81DE',
+            'id_token' => self::ID_TOKEN,
+            'scope' => 'openid efaas.profile efaas.birthdate efaas.email efaas.mobile efaas.photo efaas.permanent_address efaas.country efaas.passport_number efaas.work_permit_status',
+            'session_state' => 'JAfehG74z0MLdngrDpHLpUDA1FJhEKOvDwU0yp_Np7w.4C84F61DD069280A518176B67796F4FA'
+        ])
+            ->assertRedirect()
+            ->assertSessionHas('efaas_user')
+            ->assertSessionHas('efaas_sid', $sid);
+
+        /** @var EfaasUser|\PHPUnit\Framework\mixed $efaas_user */
+        $efaas_user = session('efaas_user');
+
+        $this->assertEquals($efaas_user->sid, $sid);
+    }
+
+    /** @test */
+    public function it_fails_on_an_expired_id_token()
+    {
+        $this->withoutExceptionHandling();
+
+        $provider = $this->mockStatelessProvider();
+
+        $this->mockProviderGetAccessToken($provider);
+        $this->mockProviderGetJwksResponse($provider);
+        $this->mockProviderSystemTime($provider,  '2024-06-28T18:19:00+0500');
+
+        $provider->shouldReceive('getUserByToken')
+            ->with(self::ACCESS_TOKEN)
+            ->andReturn([]);
+
+        $this->setMockProvider($provider);
+
+        Route::post('/oauth/{socialite_provider}/callback', [LoginController::class, 'handleProviderCallback'])->where('socialite_provider', 'efaas');
+
+        try {
+            $this->post('/oauth/efaas/callback', [
+                'code' => '21FD3643DC0ECB8684E8266702B033E027BCFC9DD03908F4BB6FC9C751DE81DE',
+                'id_token' => self::ID_TOKEN,
+                'scope' => 'openid efaas.profile efaas.birthdate efaas.email efaas.mobile efaas.photo efaas.permanent_address efaas.country efaas.passport_number efaas.work_permit_status',
+                'session_state' => 'JAfehG74z0MLdngrDpHLpUDA1FJhEKOvDwU0yp_Np7w.4C84F61DD069280A518176B67796F4FA'
+            ]);
+        } catch (JwtTokenInvalidException $e) {
+            $this->assertInstanceOf(JwtTokenInvalidException::class, $e);
+            return;
+        }
+
+        $this->fail(sprintf('The expected "%s" exception was not thrown.', JwtTokenInvalidException::class));
     }
 }

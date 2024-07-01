@@ -4,18 +4,35 @@ namespace Javaabu\EfaasSocialite;
 
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Javaabu\EfaasSocialite\Exceptions\JwtTokenInvalidException;
 use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\ProviderInterface;
 use Javaabu\EfaasSocialite\EfaasUser as User;
+use Lcobucci\Clock\Clock;
+use Lcobucci\Clock\SystemClock;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token;
+use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
+use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
+use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Strobotti\JWK\KeySetFactory;
 
 class EfaasProvider extends AbstractProvider implements ProviderInterface
 {
 
-    const DEVELOPMENT_EFAAS_URL = 'https://developer.gov.mv/efaas/connect';
-    const PRODUCTION_EFAAS_URL = 'https://efaas.gov.mv/connect';
+    const DEVELOPMENT_EFAAS_URL = 'https://developer.gov.mv/efaas';
+    const PRODUCTION_EFAAS_URL = 'https://efaas.gov.mv';
     const ONE_TAP_LOGIN_KEY = 'efaas_login_code';
 
     protected $enc_type = PHP_QUERY_RFC1738;
+
+    /**
+     * Public keys cache
+     */
+    protected $public_keys = [];
 
     /**
      * Indicates if Efaas routes will be registered.
@@ -94,6 +111,19 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
      * @return string
      */
     protected function getApiUrl($endpoint = '')
+    {
+        $endpoint = ltrim($endpoint, '/');
+
+        return $this->getBaseApiUrl('connect/' . $endpoint);
+    }
+
+    /**
+     * Get correct endpoint for API
+     *
+     * @param $endpoint
+     * @return string
+     */
+    protected function getBaseApiUrl($endpoint = '')
     {
         $api_url = $this->getEfaasUrl();
         $endpoint = ltrim($endpoint, '/');
@@ -184,7 +214,75 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
         /** @var EfaasUser $user */
         $user = parent::userInstance($response, $user);
 
-        return $user->setIdToken(Arr::get($response, 'id_token'));
+        $id_token = Arr::get($response, 'id_token');
+
+        $user->setIdToken($id_token);
+
+        if ($id_token) {
+            $sid = $this->getSidFromToken($id_token);
+            $user->setSid($sid);
+        }
+
+        return $user;
+    }
+
+    /**
+     * Parse the JWT
+     *
+     * @return Token
+     */
+    public function parseJWT($token)
+    {
+        // parse the token
+        $jwt_parser = new Parser(new JoseEncoder());
+        return $jwt_parser->parse($token);
+    }
+
+    /**
+     * Get the current system time as lobucci/clock clock
+     *
+     * @return Clock
+     */
+    public function getCurrentSystemTime(): Clock
+    {
+        return SystemClock::fromSystemTimezone();
+    }
+
+    /**
+     * Validates and extracts id from an id token or logout token
+     *
+     * @param $token
+     * @return void
+     */
+    public function getSidFromToken($token)
+    {
+        // parse the token
+        $jwt = $this->parseJWT($token);
+
+        // find the key used to sign the JWT
+        $kid = $jwt->headers()->get('kid');
+
+        // get the public key
+        $public_key = $this->getPublicKey($kid);
+
+        // create the JWT configuration for verification
+        $config = Configuration::forAsymmetricSigner(
+            new \Lcobucci\JWT\Signer\Rsa\Sha256(),
+            InMemory::plainText('empty_private_key'), // private key is not needed for validation
+            InMemory::plainText($public_key)
+        );
+
+        try {
+            // validate the token
+            $config->validator()->assert($jwt, new SignedWith($config->signer(), $config->verificationKey()));
+            $config->validator()->assert($jwt, new StrictValidAt($this->getCurrentSystemTime()));
+        } catch (RequiredConstraintsViolated $e) {
+            throw new JwtTokenInvalidException($e->getMessage());
+        }
+
+        $sid = $jwt->claims()->get('sid');
+
+        return $sid;
     }
 
 
@@ -236,6 +334,58 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
             'avatar' => Arr::get($user, 'photo') ?: null,
             'nickname' => Arr::get($user, 'first_name'),
         ]);
+    }
+
+    /**
+     * Get the jwks url to the signing keys
+     *
+     * @return string
+     */
+    protected function getJwksUrl()
+    {
+        return $this->getBaseApiUrl('.well-known/openid-configuration/jwks');
+    }
+
+    /**
+     * Get the jwks response from the jwks url
+     *
+     * @return array|string
+     */
+    public function getJwksResponse(bool $as_json = false)
+    {
+        $response = $this->getHttpClient()->get($this->getJwksUrl());
+        $body = $response->getBody();
+
+        return $as_json ? $body : json_decode($body, true);
+    }
+
+    /**
+     * Get the public key for the given key id
+     * @return ?string $public_key PEM format public key or null if key not found
+     */
+    public function getPublicKey(string $kid)
+    {
+        // check if public key is already there
+        if (isset($this->public_keys[$kid])) {
+            return $this->public_keys[$kid];
+        }
+
+        // get the jwks response
+        $jwks = $this->getJwksResponse(true);
+        $key_set = (new KeySetFactory())->createFromJSON($jwks);
+
+        $key = $key_set->getKeyById($kid);
+
+        if (! $key) {
+            // abort
+            return null;
+        }
+
+        $pem_key = (new \Strobotti\JWK\KeyConverter())->keyToPem($key);
+
+        $this->public_keys[$kid] = $pem_key;
+
+        return $pem_key;
     }
 
     /**

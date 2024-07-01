@@ -39,6 +39,14 @@ use Laravel\Socialite\Two\User;
 class EfaasUser extends User
 {
     public $id_token;
+    public $sid;
+
+    public function setSid($sid)
+    {
+        $this->sid = $sid;
+
+        return $this;
+    }
 
     public function setIdToken($id_token)
     {

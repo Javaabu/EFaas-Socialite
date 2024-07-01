@@ -89,11 +89,15 @@ request NCIT to whitelist your server IP.
 return Socialite::driver('efaas')->redirect();
 ```
 
-and in your callback handler, you can access the user data like so.
+and in your callback handler, you can access the user data like so. Remember to save the user's `id_token` and `sid` (session id) to your session.
 
 ```php
 $efaas_user = Socialite::driver('efaas')->user();
 $id_token = $efaas_user->id_token;
+$sid = $efaas_user->sid;
+
+session()->put('efaas_id_token', $id_token);
+session()->put('efaas_sid', $sid);
 ```
 
 #### Enabling PKCE
@@ -108,14 +112,14 @@ return Socialite::driver('efaas')->enablePKCE()->redirect();
 ```php
 // inside callback handler
 $efaas_user = Socialite::driver('efaas')->enablePKCE()->user();
-$access_token = $efaas_user->token;
 ```
 
 #### Logging out the eFaas User
 
-In your Laravel logout redirect, redirect with the provider `logOut()` method using the access token saved during login
+In your Laravel logout redirect, redirect with the provider `logOut()` method using the id token saved during login
 
-``` php
+```php
+$id_token = session('id_token');
 return Socialite::driver('efaas')->logOut($id_token, $post_logout_redirect_url);
 ```
 
@@ -137,7 +141,7 @@ Sometimes you may wish to customize the routes defined by the Efaas Provider. To
 the routes registered by Efaas Provider by adding `EfaasProvider::ignoreRoutes` to the register method of your
 application's `AppServiceProvider`:
 
-``` php
+```php
 use Javaabu\EfaasSocialite\EfaasProvider;
 
 /**
@@ -169,10 +173,10 @@ Then intercept the `code` (authorization code) from eFaas after they redirect yo
 to eFaas.
 
 Once your mobile app receives the auth code, send the code to your API endpoint.
-You can then get the eFaas user details from your server side using the auth code as follows:
+You can then get the eFaas user details from your server side using the auth code as follows. Remember to use the `stateless()` option as the redirect had originated outside of your server:
 
-``` php
-$efaas_user = Socialite::driver('efaas')->userFromCode($code);
+```php
+$efaas_user = Socialite::driver('efaas')->stateless()->userFromCode($code);
 ```
 
 After you receive the eFaas user, you can then issue your own access token or API key according to whatever
@@ -195,11 +199,25 @@ The available prompt options are:
  **`consent`**        | Triggers the OAuth consent dialog after the user signs in, asking the user to grant permissions to the app.                                                                                                                                   
  **`select_account`** | Interrupts the single sign-on, providing account selection experience listing all the accounts either in session or any remembered account or an option to choose to use a different account altogether                                       
 
-#### Available Methods for eFaas User
+#### Available Methods for eFaas Provider
 
-``` php
+```php
+$provider = Socialite::driver('efaas');
+
+$provider->parseJWT($token); // Parses a JWT token string into a Lcobucci\JWT\Token
+$provider->getSidFromToken($token); // Validates a given JWT token and returns the sid from the token
+$provider->getJwksResponse(false); // Returns the JWKs (JSON Web Keys) response as an array from the eFaas API. Optionally return the response as a json string using the optional boolean argument
+$provider->getPublicKey('5CDA5CF378397733DD33EFBDA82D0F317DCC1D53RS256'); // Returns the public key from JWKs for the given key id as a PEM key string  
+```
+
+#### Available Methods and Public Properties for eFaas User
+
+```php
 $efaas_user->isMaldivian(); // Check if is a Maldivian
 $efaas_user->getDhivehiName(); // Full name in Dhivehi
+$efaas_user->sid; // Session id of the user
+$efaas_user->id_token; // ID Token of the user
+$efaas_user->token; // Access token of the user
 ```
 
 #### Changing the eFaas request scopes

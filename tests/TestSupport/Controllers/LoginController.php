@@ -44,6 +44,7 @@ class LoginController
 
 
         session()->put('efaas_user', $oauth_user);
+        session()->put('efaas_sid', $oauth_user->sid);
 
         // redirect to home
         return redirect($this->redirectPath());
