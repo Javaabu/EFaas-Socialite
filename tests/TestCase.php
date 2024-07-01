@@ -144,7 +144,7 @@ abstract class TestCase extends BaseTestCase
     {
         $url = 'https://efaas-api.developer.gov.mv/user/photo';
 
-        $user = $this->partialMock(EfaasUser::class);
+        $user =  Mockery::mock(EfaasUser::class)->makePartial();
 
         $user->shouldReceive('getPhotoResponse')
             ->andReturn($this->getTestPhotoJson());
