@@ -26,6 +26,22 @@ return [
          * supports "production" and "development"
          */
         'mode' => env('EFAAS_MODE', 'development'),
+
+        /**
+         * Default scopes for the eFaas client
+         */
+        'scopes' => [
+            'openid',
+            'efaas.profile',
+            'efaas.birthdate',
+            'efaas.email',
+            'efaas.mobile',
+            'efaas.photo',
+            'efaas.permanent_address',
+            'efaas.country',
+            'efaas.passport_number',
+            'efaas.work_permit_status'
+        ],
     ],
 
     /*

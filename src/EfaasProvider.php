@@ -44,24 +44,6 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
     public static $registersRoutes = true;
 
     /**
-     * The scopes being requested.
-     *
-     * @var array
-     */
-    protected $scopes = [
-        'openid',
-        'efaas.profile',
-        'efaas.birthdate',
-        'efaas.email',
-        'efaas.mobile',
-        'efaas.photo',
-        'efaas.permanent_address',
-        'efaas.country',
-        'efaas.passport_number',
-        'efaas.work_permit_status'
-    ];
-
-    /**
      * The separating character for the requested scopes.
      *
      * @var string

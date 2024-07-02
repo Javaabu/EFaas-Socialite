@@ -2,6 +2,7 @@
 
 namespace Javaabu\EfaasSocialite\Providers;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Javaabu\EfaasSocialite\Contracts\EfaasSessionHandlerContract;
@@ -31,7 +32,12 @@ class EfaasSocialiteServiceProvider extends ServiceProvider
             'efaas',
             function ($app) use ($socialite) {
                 $config = $app['config']['efaas.client'];
-                return $socialite->buildProvider(EfaasProvider::class, $config);
+                /** @var EfaasProvider $provider */
+                $provider = $socialite->buildProvider(EfaasProvider::class, $config);
+
+                $provider->setScopes(Arr::get($config, 'scopes', []));
+
+                return $provider;
             }
         );
 

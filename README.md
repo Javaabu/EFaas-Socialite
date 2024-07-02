@@ -121,6 +121,22 @@ return [
          * supports "production" and "development"
          */
         'mode' => env('EFAAS_MODE', 'development'),
+
+        /**
+         * Default scopes for the eFaas client
+         */
+        'scopes' => [
+            'openid',
+            'efaas.profile',
+            'efaas.birthdate',
+            'efaas.email',
+            'efaas.mobile',
+            'efaas.photo',
+            'efaas.permanent_address',
+            'efaas.country',
+            'efaas.passport_number',
+            'efaas.work_permit_status'
+        ],
     ],
 
     /*
@@ -148,7 +164,6 @@ return [
      */
     'database_connection' => env('EFAAS_SESSIONS_DB_CONNECTION'),
 ];
-
 
 ```
 
@@ -391,8 +406,7 @@ $efaas_user->token; // Access token of the user
 
 #### Changing the eFaas request scopes
 
-By default, this package adds all available scopes to the eFaas redirect. To customize the scopes you need, you can
-override the scopes during the redirect.
+By default, this package adds all available scopes to the eFaas redirect. You can modify the default scopes by publishing the package config file and changing the scopes. To customize the scopes on a per request basis, you can override the scopes during the redirect.
 
 ```php
 return Socialite::driver('efaas')->setScopes(['efaas.openid', 'efaas.profile'])->redirect();
