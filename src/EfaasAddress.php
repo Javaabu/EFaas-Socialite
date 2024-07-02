@@ -56,15 +56,15 @@ class EfaasAddress
     {
         $address_string = '';
 
-        if ($ward = $this->WardAbbreviationEnglish) {
+        if ($ward = trim($this->WardAbbreviationEnglish)) {
             $address_string .= $ward . '. ';
         }
 
-        if ($address_line_1 = $this->AddressLine1) {
+        if ($address_line_1 = trim($this->AddressLine1)) {
             $address_string .= $address_line_1;
         }
 
-        if ($address_line_2 = $this->AddressLine2) {
+        if ($address_line_2 = trim($this->AddressLine2)) {
             $address_string .= ', ' . $address_line_2;
         }
 
@@ -75,11 +75,11 @@ class EfaasAddress
     {
         $address_string = '';
 
-        if ($ward = $this->WardAbbreviationDhivehi) {
+        if ($ward = trim($this->WardAbbreviationDhivehi)) {
             $address_string .= $ward . '. ';
         }
 
-        if ($address_line_1 = $this->HomeNameDhivehi) {
+        if ($address_line_1 = trim($this->HomeNameDhivehi)) {
             $address_string .= $address_line_1;
         }
 
