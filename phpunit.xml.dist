@@ -10,6 +10,11 @@
             <directory>tests</directory>
         </testsuite>
     </testsuites>
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
     <logging>
         <junit outputFile="build/report.junit.xml"/>
         <testdoxHtml outputFile="build/coverage"/>

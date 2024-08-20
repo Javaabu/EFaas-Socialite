@@ -86,7 +86,7 @@ jobs:
                 with:
                     php-version: ${{ matrix.php }}
                     extensions: curl, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, iconv
-                    coverage: none\
+                    coverage: ${{ startsWith(github.event.head_commit.message, 'coverage') && matrix.php == '8.3' && matrix.laravel == '11.*' && matrix.stability == 'prefer-stable' && 'xdebug' || 'none' }}
 
             -   name: Install dependencies
                 run: |
@@ -94,4 +94,13 @@ jobs:
                     composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
             -   name: Execute tests
-                run: vendor/bin/phpunit
+                run: |
+                    vendor/bin/phpunit ${{ startsWith(github.event.head_commit.message, 'coverage') && matrix.php == '8.3' && matrix.laravel == '11.*' && matrix.stability == 'prefer-stable' && '--coverage-clover=clover.xml' || '' }}
+
+            -   name: Make code coverage badge
+                if: startsWith(github.event.head_commit.message, 'coverage') && matrix.php == '8.3' && matrix.laravel == '11.*' && matrix.stability == 'prefer-stable'
+                uses: timkrase/phpunit-coverage-badge@v1.2.1
+                with:
+                    coverage_badge_path: .github/coverage.svg
+                    push_badge: true
+                    repo_token: ${{ secrets.GITHUB_TOKEN }}
