@@ -308,13 +308,13 @@ class EfaasProvider extends AbstractProvider implements ProviderInterface
         $dob = Arr::get($user, 'birthdate');
         $updated_at = Arr::get($user, 'updated_at');
         $last_verified_date = Arr::get($user, 'last_verified_date');
-        $datetime_format = 'd/m/Y h:i:s A';
+        $datetime_format = 'm/d/Y h:i:s A';
 
         return (new User)->setRaw($user)->map([
             'gender' => Arr::get($user, 'gender'),
             'idnumber' => Arr::get($user, 'idnumber'),
             'email' => Arr::get($user, 'email'),
-            'birthdate' => $dob ? Carbon::createFromFormat('d/m/Y', $dob) : null,
+            'birthdate' => $dob ? Carbon::createFromFormat('m/d/Y', $dob) : null,
             'passport_number' => Arr::get($user, 'passport_number'),
             'is_workpermit_active' => Arr::get($user, 'is_workpermit_active') == 'True',
             'updated_at' =>  $updated_at ? Carbon::createFromFormat($datetime_format, $updated_at) : null,

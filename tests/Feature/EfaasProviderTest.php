@@ -87,7 +87,7 @@ class EfaasProviderTest extends TestCase
                             "gender": "M",
                             "idnumber": "A900318",
                             "email": "csc318@gmail.com",
-                            "birthdate": "6/3/1990",
+                            "birthdate": "10/22/1993",
                             "passport_number": "LA19E7432",
                             "is_workpermit_active": "False",
                             "updated_at": "1/2/1995 12:00:00 AM",
@@ -139,10 +139,10 @@ class EfaasProviderTest extends TestCase
         $this->assertEquals($efaas_user->gender, 'M');
         $this->assertEquals($efaas_user->idnumber, 'A900318');
         $this->assertEquals($efaas_user->email, 'csc318@gmail.com');
-        $this->assertEquals($efaas_user->birthdate->toDateString(), '1990-03-06');
+        $this->assertEquals($efaas_user->birthdate->toDateString(), '1993-10-22');
         $this->assertEquals($efaas_user->passport_number, 'LA19E7432');
         $this->assertFalse($efaas_user->is_workpermit_active);
-        $this->assertEquals($efaas_user->updated_at->toDateTimeString(), '1995-02-01 00:00:00');
+        $this->assertEquals($efaas_user->updated_at->toDateTimeString(), '1995-01-02 00:00:00');
         $this->assertEquals($efaas_user->country_dialing_code, '+960');
         $this->assertEquals($efaas_user->country_code, 462);
         $this->assertEquals($efaas_user->country_code_alpha3, 'MDV');
