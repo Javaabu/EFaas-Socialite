@@ -104,8 +104,8 @@ jobs:
 
             -   name: Install dependencies
                 run: |
-                    composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "nesbot/carbon:${{ matrix.carbon }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update --no-audit
-                    composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-audit
+                    composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "nesbot/carbon:${{ matrix.carbon }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update --no-audit --no-security-blocking
+                    composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-audit --no-security-blocking
 
             -   name: Execute tests
                 run: |
