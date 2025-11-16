@@ -103,10 +103,11 @@ jobs:
                     coverage: ${{ startsWith(github.event.head_commit.message, 'coverage') && matrix.php == '8.3' && matrix.laravel == '11.*' && matrix.stability == 'prefer-stable' && 'xdebug' || 'none' }}
 
             -   name: Install dependencies
+                env:
+                    COMPOSER_NO_SECURITY_BLOCKING: 1
                 run: |
-                    composer config audit.ignore '["PKSA-8qx3-n5y5-vvnd", "PKSA-fndg-qryc-dyc9"]'
-                    COMPOSER_NO_SECURITY_BLOCKING=1 composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "nesbot/carbon:${{ matrix.carbon }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update
-                    COMPOSER_NO_SECURITY_BLOCKING=1 composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+                    composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "nesbot/carbon:${{ matrix.carbon }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update
+                    composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
             -   name: Execute tests
                 run: |
