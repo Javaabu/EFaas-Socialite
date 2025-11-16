@@ -103,9 +103,8 @@ jobs:
                     coverage: ${{ startsWith(github.event.head_commit.message, 'coverage') && matrix.php == '8.3' && matrix.laravel == '11.*' && matrix.stability == 'prefer-stable' && 'xdebug' || 'none' }}
 
             -   name: Install dependencies
-                env:
-                    COMPOSER_NO_SECURITY_BLOCKING: 1
                 run: |
+                    composer self-update --2.8
                     composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "nesbot/carbon:${{ matrix.carbon }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update
                     composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
