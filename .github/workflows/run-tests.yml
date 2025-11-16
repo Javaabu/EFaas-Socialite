@@ -104,8 +104,9 @@ jobs:
 
             -   name: Install dependencies
                 run: |
-                    COMPOSER_DISABLE_AUDIT=1 composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "nesbot/carbon:${{ matrix.carbon }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update
-                    COMPOSER_DISABLE_AUDIT=1 composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+                    composer config audit.ignore '["PKSA-8qx3-n5y5-vvnd", "PKSA-fndg-qryc-dyc9"]'
+                    composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "nesbot/carbon:${{ matrix.carbon }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update
+                    composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
             -   name: Execute tests
                 run: |
