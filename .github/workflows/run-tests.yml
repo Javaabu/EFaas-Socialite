@@ -104,6 +104,7 @@ jobs:
 
             -   name: Install dependencies
                 run: |
+                    composer config audit.block-insecure false
                     composer config audit.ignore '["PKSA-8qx3-n5y5-vvnd", "PKSA-fndg-qryc-dyc9"]'
                     composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "nesbot/carbon:${{ matrix.carbon }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update
                     composer update --${{ matrix.stability }} --prefer-dist --no-interaction
