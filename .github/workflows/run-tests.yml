@@ -102,16 +102,10 @@ jobs:
                     extensions: curl, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, iconv
                     coverage: ${{ startsWith(github.event.head_commit.message, 'coverage') && matrix.php == '8.3' && matrix.laravel == '11.*' && matrix.stability == 'prefer-stable' && 'xdebug' || 'none' }}
 
-            -   name: Ensure Composer ≥ 2.5
-                run: composer self-update --2
-
-            -   name: Disable Composer security audit
-                run: composer config --global audit.block-insecure false || echo "ignore unknown config for older Composer"
-
             -   name: Install dependencies
                 run: |
-                    composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "nesbot/carbon:${{ matrix.carbon }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update
-                    composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+                    composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "nesbot/carbon:${{ matrix.carbon }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update --no-audit
+                    composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-audit
 
             -   name: Execute tests
                 run: |
