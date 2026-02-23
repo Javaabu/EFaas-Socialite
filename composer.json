@@ -10,18 +10,18 @@
         }
     ],
     "require": {
-        "php": "^7.4 || ^8.0 || ^8.1",
+        "php": "^7.4 || ^8.0",
         "ext-openssl": "*",
         "laravel/socialite": "^5.15",
-        "illuminate/support": "^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0 || ^11.0 || ^12.0",
-        "lcobucci/jwt": "^4.3 || ^5.0",
+        "illuminate/support": "^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0 || ^11.0 || ^12.0 || ^13.0",
+        "lcobucci/jwt": "^4.3 || ^5.0 || ^6.0",
         "lcobucci/clock": "^2.0 || ^3.0",
         "strobotti/php-jwk": "^1.4",
         "phpseclib/phpseclib": "^3.0.39"
     },
     "require-dev": {
-        "orchestra/testbench": "^4.0 || ^5.0 || ^6.44 || ^7.0 || ^8.0 || ^9.0 || ^10.0",
-        "phpunit/phpunit": "^8.5 || ^9.5 || ^10.5 || ^11.5.3",
+        "orchestra/testbench": "^4.0 || ^5.0 || ^6.44 || ^7.0 || ^8.0 || ^9.16 || ^10.0 || ^11.0",
+        "phpunit/phpunit": "^8.5 || ^9.5 || ^10.5 || ^11.5.3 || ^12.5.8 || ^13.0.3",
         "mockery/mockery": "^1.6"
     },
     "autoload": {

@@ -18,8 +18,7 @@ class EfaasSessionHandlerTest extends TestCase
         return Socialite::driver('efaas')->sessionHandler();
     }
 
-    /** @test */
-    public function it_can_get_a_session_handler_instance()
+    public function test_it_can_get_a_session_handler_instance()
     {
         $this->withoutExceptionHandling();
 
@@ -31,8 +30,7 @@ class EfaasSessionHandlerTest extends TestCase
         $this->assertInstanceOf(EfaasSessionHandler::class, $handler);
     }
 
-    /** @test */
-    public function it_can_save_an_sid()
+    public function test_it_can_save_an_sid()
     {
         $this->withoutExceptionHandling();
 
@@ -46,8 +44,7 @@ class EfaasSessionHandlerTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function it_uses_the_current_laravel_session_id_by_default_when_saving_sid()
+    public function test_it_uses_the_current_laravel_session_id_by_default_when_saving_sid()
     {
         $this->withoutExceptionHandling();
 
@@ -72,8 +69,7 @@ class EfaasSessionHandlerTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function it_overwrites_the_sid_when_saving_a_new_sid_to_the_save_laravel_session_id()
+    public function test_it_overwrites_the_sid_when_saving_a_new_sid_to_the_save_laravel_session_id()
     {
         $this->withoutExceptionHandling();
 
@@ -97,8 +93,7 @@ class EfaasSessionHandlerTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function it_can_find_an_efaas_session_by_laravel_session_id()
+    public function test_it_can_find_an_efaas_session_by_laravel_session_id()
     {
         $this->withoutExceptionHandling();
 
@@ -119,8 +114,7 @@ class EfaasSessionHandlerTest extends TestCase
         $this->assertEquals(self::SID, $new_session->efaas_sid);
     }
 
-    /** @test */
-    public function it_can_find_multiple_efaas_sessions_by_sid()
+    public function test_it_can_find_multiple_efaas_sessions_by_sid()
     {
         $this->withoutExceptionHandling();
 
@@ -143,8 +137,7 @@ class EfaasSessionHandlerTest extends TestCase
         $this->assertEquals(self::SID, $new_session->efaas_sid);
     }
 
-    /** @test */
-    public function it_can_destroy_multiple_efaas_sessions_by_sid()
+    public function test_it_can_destroy_multiple_efaas_sessions_by_sid()
     {
         $this->withoutExceptionHandling();
 

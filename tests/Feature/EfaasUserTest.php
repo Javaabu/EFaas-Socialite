@@ -30,8 +30,7 @@ class EfaasUserTest extends TestCase
         parent::tearDown();
     }
 
-    /** @test */
-    public function it_can_write_the_photo_to_a_file()
+    public function test_it_can_write_the_photo_to_a_file()
     {
         $this->withoutExceptionHandling();
 
@@ -54,8 +53,7 @@ class EfaasUserTest extends TestCase
         $this->assertFileEquals(__DIR__ . '/../TestSupport/resources/image.png', $test_image);
     }
 
-    /** @test */
-    public function it_adds_the_photo_file_extension_automatically()
+    public function test_it_adds_the_photo_file_extension_automatically()
     {
         $this->withoutExceptionHandling();
 

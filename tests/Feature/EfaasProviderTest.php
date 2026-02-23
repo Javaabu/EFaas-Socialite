@@ -14,8 +14,7 @@ use Laravel\Socialite\Two\InvalidStateException;
 
 class EfaasProviderTest extends TestCase
 {
-    /** @test */
-    public function it_can_redirect_to_efaas_login_page()
+    public function test_it_can_redirect_to_efaas_login_page()
     {
         $this->withoutExceptionHandling();
 
@@ -44,8 +43,7 @@ class EfaasProviderTest extends TestCase
         );
     }
 
-    /** @test */
-    public function it_can_perform_efaas_one_tap_login_redirect()
+    public function test_it_can_perform_efaas_one_tap_login_redirect()
     {
         $this->withoutExceptionHandling();
 
@@ -72,9 +70,7 @@ class EfaasProviderTest extends TestCase
             $redirect_url
         );
     }
-
-    /** @test */
-    public function it_can_map_efaas_user()
+    public function test_it_can_map_efaas_user()
     {
         $this->withoutExceptionHandling();
 
@@ -165,9 +161,7 @@ class EfaasProviderTest extends TestCase
         // Address
         $this->assertInstanceOf(EfaasAddress::class, $efaas_user->permanent_address);
     }
-
-    /** @test */
-    public function it_can_map_efaas_address()
+    public function test_it_can_map_efaas_address()
     {
         $this->withoutExceptionHandling();
 
@@ -215,9 +209,7 @@ class EfaasProviderTest extends TestCase
         $this->assertEquals($permanent_address->getFormattedAddress(), 'Dhaftharu. asd, Something');
         $this->assertEquals($permanent_address->getDhivehiFormattedAddress(), 'ދަފްތަރު. އޭއެސްޑީ');
     }
-
-    /** @test */
-    public function it_fails_if_state_is_not_provided()
+    public function test_it_fails_if_state_is_not_provided()
     {
         $this->withoutExceptionHandling();
 
@@ -250,9 +242,7 @@ class EfaasProviderTest extends TestCase
 
         $this->fail(sprintf('The expected "%s" exception was not thrown.', InvalidStateException::class));
     }
-
-    /** @test */
-    public function it_fails_if_state_does_not_match()
+    public function test_it_fails_if_state_does_not_match()
     {
         $this->withoutExceptionHandling();
 
@@ -286,9 +276,7 @@ class EfaasProviderTest extends TestCase
 
         $this->fail(sprintf('The expected "%s" exception was not thrown.', InvalidStateException::class));
     }
-
-    /** @test */
-    public function it_can_validate_the_state()
+    public function test_it_can_validate_the_state()
     {
         $this->withoutExceptionHandling();
 
@@ -316,8 +304,7 @@ class EfaasProviderTest extends TestCase
             ->assertSessionHas('efaas_user');
     }
 
-    /** @test */
-    public function it_can_get_the_public_key_for_the_given_kid()
+    public function test_it_can_get_the_public_key_for_the_given_kid()
     {
         $this->withoutExceptionHandling();
 
@@ -346,8 +333,7 @@ class EfaasProviderTest extends TestCase
         $this->assertEquals($normalized_key, preg_replace('/\R+/', '', $provider->getPublicKey($kid)));
     }
 
-    /** @test */
-    public function it_can_get_the_sid_from_the_id_token()
+    public function test_it_can_get_the_sid_from_the_id_token()
     {
         $this->withoutExceptionHandling();
 
@@ -383,8 +369,7 @@ class EfaasProviderTest extends TestCase
         $this->assertEquals($efaas_user->sid, $sid);
     }
 
-    /** @test */
-    public function it_fails_on_an_expired_id_token()
+    public function test_it_fails_on_an_expired_id_token()
     {
         $this->withoutExceptionHandling();
 
@@ -417,8 +402,7 @@ class EfaasProviderTest extends TestCase
         $this->fail(sprintf('The expected "%s" exception was not thrown.', JwtTokenInvalidException::class));
     }
 
-    /** @test */
-    public function it_can_retrieve_the_logout_token_for_back_channel_logout()
+    public function test_it_can_retrieve_the_logout_token_for_back_channel_logout()
     {
         $this->withoutExceptionHandling();
 
@@ -436,8 +420,7 @@ class EfaasProviderTest extends TestCase
             ->assertSessionHas('logout_sid', self::SID);
     }
 
-    /** @test */
-    public function it_can_retrieve_the_logout_token_for_front_channel_logout()
+    public function test_it_can_retrieve_the_logout_token_for_front_channel_logout()
     {
         $this->withoutExceptionHandling();
 
@@ -453,8 +436,7 @@ class EfaasProviderTest extends TestCase
             ->assertSessionHas('logout_sid', self::SID);
     }
 
-    /** @test */
-    public function it_gives_null_sid_on_expired_logout_token()
+    public function test_it_gives_null_sid_on_expired_logout_token()
     {
         $this->withoutExceptionHandling();
 
@@ -476,8 +458,7 @@ class EfaasProviderTest extends TestCase
             ->assertSessionHas('logout_sid', null);
     }
 
-    /** @test */
-    public function it_can_retreive_photo_as_a_base64_encoded_string()
+    public function test_it_can_retreive_photo_as_a_base64_encoded_string()
     {
         $this->withoutExceptionHandling();
 
@@ -493,8 +474,7 @@ class EfaasProviderTest extends TestCase
         $this->assertEquals($this->getTestPhotoJson()['data']['photo'], $efaas_user->getPhotoBase64());
     }
 
-    /** @test */
-    public function it_can_get_the_photo_mime_type()
+    public function test_it_can_get_the_photo_mime_type()
     {
         $this->withoutExceptionHandling();
 
@@ -510,8 +490,7 @@ class EfaasProviderTest extends TestCase
         $this->assertEquals('image/png', $efaas_user->getPhotoMimetype());
     }
 
-    /** @test */
-    public function it_can_get_the_photo_extension()
+    public function test_it_can_get_the_photo_extension()
     {
         $this->withoutExceptionHandling();
 
@@ -527,8 +506,7 @@ class EfaasProviderTest extends TestCase
         $this->assertEquals('png', $efaas_user->getPhotoExtension());
     }
 
-    /** @test */
-    public function it_can_get_the_photo_as_a_data_url()
+    public function test_it_can_get_the_photo_as_a_data_url()
     {
         $this->withoutExceptionHandling();
 
