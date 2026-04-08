@@ -13,6 +13,7 @@
 <!-- TOC -->
 * [eFaas Laravel Socialite](#efaas-laravel-socialite)
   * [Requirements](#requirements)
+  * [Upgrading](#upgrading)
   * [Installation](#installation)
     * [Add configuration to your `.env` file](#add-configuration-to-your-env-file)
     * [Publishing the config file](#publishing-the-config-file)
@@ -55,6 +56,10 @@ This package requires the following:
 - Laravel 6.0 or higher
 - PHP 7.4 or higher
 - ext-openssl PHP extension
+
+## Upgrading
+
+Please see the [Upgrade Guide](UPGRADE.md) on how to upgrade the package.
 
 ## Installation
 
