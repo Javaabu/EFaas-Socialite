@@ -34,6 +34,8 @@ abstract class TestCase extends BaseTestCase
 
         $this->app['config']->set('session.serialization', 'php');
 
+        $this->app['config']->set('auth.providers.users.model', \Javaabu\EfaasSocialite\Tests\TestSupport\Models\User::class);
+
         // setup efaas config
         $this->app['config']->set('efaas.client.client_id', self::CLIENT_ID);
         $this->app['config']->set('efaas.client.client_secret', self::CLIENT_SECRET);
