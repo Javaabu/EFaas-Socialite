@@ -1,8 +1,8 @@
 # Upgrade Guide
 
-## 3.x → 4.x
+## Upgrading to 4.0 from 3.x
 
-## Summary
+### Summary
 
 Version 4 improves logout behavior to ensure users are **fully logged out**, even when “remember me” is enabled.
 
@@ -10,7 +10,7 @@ Previously, back-channel logout only destroyed the session, but did **not rotate
 
 ---
 
-## What Changed
+### What Changed
 
 - **Guard support added to logout methods**
   - `logOut(?string $guard = null)`
@@ -31,7 +31,7 @@ Previously, back-channel logout only destroyed the session, but did **not rotate
 
 ---
 
-## Upgrade Impact
+### Upgrade Impact
 
 ✅ **No action required in most cases**
 
@@ -39,7 +39,7 @@ The package should work out of the box after upgrading.
 
 ---
 
-## When You Need to Update Code
+### When You Need to Update Code
 
 Only if you have custom implementations:
 
@@ -57,7 +57,7 @@ Only if you have custom implementations:
 
 ---
 
-## Optional
+### Optional
 
 If you use a non-default auth guard, set:
 
