@@ -45,6 +45,12 @@ return [
     ],
 
     /*
+     * The default guard that would be used for logging out users through back channel
+     * If null, the default guard will be used
+     */
+    'session_guard' => null,
+
+    /*
      * This model will be used to store efaas session sids
      * The class must implement \Javaabu\EfaasSocialite\Contracts\EfaasSessionContract
      */

@@ -7,5 +7,5 @@ interface EfaasSessionContract
     /**
      * Logout the current session
      */
-    public function logOut();
+    public function logOut(?string $guard = null);
 }

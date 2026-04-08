@@ -2,7 +2,9 @@
 
 namespace Javaabu\EfaasSocialite;
 
+use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Query\Builder;
 use Javaabu\EfaasSocialite\Contracts\EfaasSessionContract;
 use Javaabu\EfaasSocialite\Contracts\EfaasSessionHandlerContract;
 
@@ -31,13 +33,13 @@ class EfaasSessionHandler implements EfaasSessionHandlerContract
             ->get();
     }
 
-    public function logoutSessions(string $sid)
+    public function logoutSessions(string $sid, ?string $guard = null)
     {
         $sessions = $this->findBySid($sid);
 
         /** @var EfaasSessionContract $session */
         foreach ($sessions as $session) {
-            $session->logOut();
+            $session->logOut($guard);
         }
     }
 
@@ -66,5 +68,22 @@ class EfaasSessionHandler implements EfaasSessionHandlerContract
     public function getCurrentLaravelSessionId(): string
     {
         return session()->getId();
+    }
+
+    public function findUserIdByLaravelSessionId(string $laravel_session_id): ?string
+    {
+        return $this->getSessionQuery()->where('id', $laravel_session_id)->value('user_id');
+    }
+
+    protected function getSessionQuery(): Builder
+    {
+        $table = config('session.table');
+
+        return $this->getSessionConnection()->table($table);
+    }
+
+    protected function getSessionConnection(): Connection
+    {
+        return app()->make('db')->connection(config('session.connection'));
     }
 }

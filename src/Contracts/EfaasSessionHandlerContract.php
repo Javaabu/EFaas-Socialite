@@ -19,7 +19,7 @@ interface EfaasSessionHandlerContract
     /**
      * Logout all sessions of the sid
      */
-    public function logoutSessions(string $sid);
+    public function logoutSessions(string $sid, ?string $guard = null);
 
     /**
      * Save the sid
@@ -30,4 +30,9 @@ interface EfaasSessionHandlerContract
      * Get the current laravel session id
      */
     public function getCurrentLaravelSessionId(): string;
+
+    /**
+     * Get the saved user id from the laravel sessions table
+     */
+    public function findUserIdByLaravelSessionId(string $laravel_session_id): ?string;
 }

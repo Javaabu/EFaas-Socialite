@@ -142,6 +142,12 @@ return [
     ],
 
     /*
+     * The default guard that would be used for logging out users through back channel
+     * If null, the default guard will be used
+     */
+    'session_guard' => null,
+    
+    /*
      * This model will be used to store efaas session sids
      * The class must implement \Javaabu\EfaasSocialite\Contracts\EfaasSessionContract
      */
@@ -325,6 +331,7 @@ Socialite::driver('efaas')
 ```
 
 Then, in your single sign out controller handler method, first retrieve the logout token's `sid` using the eFaas provider's `getLogoutSid()` method. The method will return `null` if the provided logout token is invalid. You can then use the eFaas provider's `sessionHandler()` to logout all laravel sessions that match the `sid`.
+You can optionally pass in the guard name to the `sessionHandler()` method to logout a specific guard's sessions. If no guard name is provided, it will default to the guard name set in the `efaas.session_guard` config option.
 
 ```php
 ...
@@ -335,7 +342,7 @@ public function handleBackChannelSingleSignOut(Request $request)
     if ($sid) {
         Socialite::driver('efaas')
             ->sessionHandler()
-            ->logoutSessions($sid);
+            ->logoutSessions($sid, 'web');
     }
     
     // for back channel logout you must return 200 OK response

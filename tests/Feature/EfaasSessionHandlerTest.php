@@ -3,9 +3,11 @@
 namespace Javaabu\EfaasSocialite\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Javaabu\EfaasSocialite\EfaasProvider;
 use Javaabu\EfaasSocialite\EfaasSessionHandler;
 use Javaabu\EfaasSocialite\Tests\TestCase;
+use Javaabu\EfaasSocialite\Tests\TestSupport\Models\User;
 use Laravel\Socialite\Facades\Socialite;
 
 class EfaasSessionHandlerTest extends TestCase
@@ -16,6 +18,18 @@ class EfaasSessionHandlerTest extends TestCase
     {
         /** @var EfaasSessionHandler $provider */
         return Socialite::driver('efaas')->sessionHandler();
+    }
+
+    protected function getUser(?string $name = null, ?string $email = null, ?string $remember_token = null): User
+    {
+        $user = new User();
+        $user->name = $name ?: 'Test User';
+        $user->email = $email ?: 'test@example.com';
+        $user->password = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi';
+        $user->remember_token = $remember_token ?: Str::random(10);
+        $user->save();
+
+        return $user;
     }
 
     public function test_it_can_get_a_session_handler_instance()
@@ -171,5 +185,96 @@ class EfaasSessionHandlerTest extends TestCase
         $this->assertDatabaseMissing('efaas_sessions', [
             'id' => $id,
         ]);
+    }
+
+    public function test_it_can_find_session_user_id_by_laravel_session_id()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getUser('Test', 'test@example.com');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'name' => 'Test',
+            'email' => 'test@example.com',
+        ]);
+
+        $this->app['config']->set('session.driver', 'database');
+
+        $this->actingAs($user);
+
+        $laravel_session_id = session()->getId();
+        session()->save();
+
+        $this->assertDatabaseHas('sessions', [
+            'id' => $laravel_session_id,
+            'user_id' => $user->id,
+        ]);
+
+        $handler = $this->getEfaasSessionHandler();
+
+        $session = $handler->saveSid(self::SID, $laravel_session_id);
+        $id = $session->id;
+
+        $this->assertDatabaseHas('efaas_sessions', [
+            'id' => $id,
+            'laravel_session_id' => $laravel_session_id,
+            'efaas_sid' => self::SID
+        ]);
+
+        $user_id = $handler->findUserIdByLaravelSessionId($laravel_session_id);
+
+        $this->assertEquals($user->id, $user_id);
+    }
+
+    public function test_it_can_cycle_remember_token_when_efaas_user_is_logged_out()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getUser('Test', 'test@example.com', 'testtoken');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'name' => 'Test',
+            'email' => 'test@example.com',
+            'remember_token' => 'testtoken',
+        ]);
+
+        $this->app['config']->set('session.driver', 'database');
+
+        $this->actingAs($user);
+
+        $laravel_session_id = session()->getId();
+        session()->save();
+
+        $this->assertDatabaseHas('sessions', [
+            'id' => $laravel_session_id,
+            'user_id' => $user->id,
+        ]);
+
+        $handler = $this->getEfaasSessionHandler();
+
+        $session = $handler->saveSid(self::SID, $laravel_session_id);
+        $id = $session->id;
+
+        $this->assertDatabaseHas('efaas_sessions', [
+            'id' => $id,
+            'laravel_session_id' => $laravel_session_id,
+            'efaas_sid' => self::SID
+        ]);
+
+        $handler->logoutSessions(self::SID);
+
+        $this->assertDatabaseMissing('sessions', [
+            'id' => $laravel_session_id,
+        ]);
+
+        $this->assertDatabaseMissing('efaas_sessions', [
+            'efaas_sid' => self::SID,
+        ]);
+
+        $user = $user->fresh();
+
+        $this->assertNotEquals($user->remember_token, 'testtoken');
     }
 }
