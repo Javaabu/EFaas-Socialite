@@ -48,6 +48,10 @@ Only if you have custom implementations:
     ```php
     findUserIdByLaravelSessionId(string $laravel_session_id): ?string
     ```
+  - Must support:
+    ```php
+    logoutSessions(string $sid, ?string $guard = null)
+    ```
 
 - **Custom `EfaasSession` model**
   - Must support:
