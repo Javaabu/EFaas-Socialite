@@ -55,8 +55,5 @@ class EfaasSession extends Model implements EfaasSessionContract
 
         // then destroy self
         $this->delete();
-
-        // then destroy self
-        $this->delete();
     }
 }

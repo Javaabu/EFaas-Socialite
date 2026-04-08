@@ -7,7 +7,7 @@ namespace Javaabu\EfaasSocialite\Enums;
 trait Enum
 {
     /**
-     * Get tje description for the enum
+     * Get the description for the enum
      *
      * @return string
      */
