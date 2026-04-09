@@ -83,7 +83,7 @@ class EfaasUser extends User
      */
     public function isMaldivian()
     {
-        return $this->user_type_description == UserTypes::MALDIVIAN;
+        return $this->user_type_description == UserTypes::getDescription(UserTypes::MALDIVIAN);
     }
 
     /**
