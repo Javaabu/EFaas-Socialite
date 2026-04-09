@@ -159,6 +159,8 @@ class EfaasProviderTest extends TestCase
         $this->assertEquals($efaas_user->sub, '3b46dc4b-f565-420b-af8f-9312c86e40cb');
 
         $this->assertTrue($efaas_user->isMaldivian());
+        $this->assertEquals($efaas_user->getDhivehiName(), 'ސީއެސްސީ ޓެސްޓް ޔޫސަރ 18');
+
 
         // Address
         $this->assertInstanceOf(EfaasAddress::class, $efaas_user->permanent_address);
